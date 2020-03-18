@@ -1,0 +1,1654 @@
+#SingleInstance,Force
+#NoEnv
+ListLines,Off
+SetBatchLines,-1
+CoordMode,Mouse,Screen
+SetMouseDelay,10
+pToken:=Gdip_Startup()
+OnMessage(0x200,"CheckStop")
+global ClickTypeGroup:=[],HB_Button:=[],PlaySounds:={State:1},Cx,Cy,Click_Position,ClickDelay:=30,ClickAmount:=1,ClickCounter:=0,Stop:=0,SetA,MouseDelay:=10,Startkey:="Numpad1",StopKey:="Numpad2"
+Hotkey,%StartKey%,RUNACNOW
+Hotkey,%StopKey%,STCLer
+Main := New Custom_Window( x:= "" , y:= "" , w:= 450 , h:= 300 , Name:= "1" , Options:= "+AlwaysOnTop  -DPIScale -Caption" , Title:= "SS Clicker" , Background_Bitmap:= SS_CLICKER_BG() )
+Gui,1:Color,373737,333333
+Gui,1:Add,Text,x100 y5 w250 h30 BackgroundTrans gMove_Window
+Gui,1:Add,Text,x5 y5 w25 h25 BackgroundTrans gTag
+Gui,1:Add,Text,x425 y6 w15 h15 BackgroundTrans gGuiClose
+Gui,1:Add,Text,x404 y6 w15 h15 BackgroundTrans gMin_Window
+global Always := New Flat_Round_Switch_Type_1(x := 15 , y := 55 , w := 120 , Text := "AlwaysOnTop" ,Font:="Arial",FontSize:= "10 Bold" , FontColor:="E8D705" ,Window:="1",Background_Color:="373737",State:=1,Label:="AlwaysOnTop")
+ClickTypeGroup.Push(New Flat_Round_Radio_Type_1(x:=160,y:=55,w:=140,Text:="Click At Set Position",Font:="Arial",FontSize:=10 " Bold",FontColor:="E8D705",Window:=1,Background_Color:="404040",HighLightColor:="BAAD11",State:=1,GroupArray:=ClickTypeGroup))
+ClickTypeGroup.Push(New Flat_Round_Radio_Type_1(x+=w+10,y,w:=120,Text:="Click At Cursor",Font:="Arial",FontSize:=10 " Bold",FontColor,Window:=1,Background_Color,HighLightColor,State:=0,GroupArray:=ClickTypeGroup))
+HB_Button.Push( New HB_Flat_Rounded_Button_Type_1( x:=20  , y := 95 , w := 200 , h := 32 , Button_Color := "666666" , Button_Background_Color := "404040" , Text := "Set Click Position" , Font := "Arial" , Font_Size := 10 " Bold" , Font_Color_Top := "E8D705" , Font_Color_Bottom := "111111" , Window := "1" , Label := "SetPosition" , Default_Button := 0 , Roundness:=2 ) )
+Gui,1:Font,cE8D705  s8 Bold  , Arial
+Gui,1:Add,Edit,cE8D705 x291 y100 w129 h21  Center ReadOnly hwndClick_Position,Not Set
+Gui,1:Add,Edit,cE8D705 x83 y146 w59 h21  Center Number vClickDelay gSCD,% ClickDelay
+global Click_Forever := New Flat_Round_Switch_Type_1(x := 180 , y := 147 , w := 120 , Text := "Click Forever" ,Font:="Arial",FontSize:= "10 Bold" , FontColor:="E8D705" ,Window:="1",Background_Color:="404040",State:=1,Label:="AlwaysOnTop")
+global ClickCountGroup:=[]
+ClickCountGroup.Push(New Flat_Round_Radio_Type_1(x:=20,y:=205,w:=110,Text:="No Count",Font:="Arial",FontSize:=10 " Bold",FontColor:="E8D705",Window:=1,Background_Color:="404040",HighLightColor:="BAAD11",State:=1,GroupArray:=ClickCountGroup))
+ClickCountGroup.Push(New Flat_Round_Radio_Type_1(x,y+=21,w:=120,Text:="Gui Count",Font:="Arial",FontSize:=10 " Bold",FontColor,Window:=1,Background_Color,HighLightColor,State:=0,GroupArray:=ClickCountGroup))
+ClickCountGroup.Push(New Flat_Round_Radio_Type_1(x,y+=21,w:=120,Text:="Tooltip Count",Font:="Arial",FontSize:=10 " Bold",FontColor,Window:=1,Background_Color,HighLightColor,State:=0,GroupArray:=ClickCountGroup))
+Gui,1:Add,Edit,x373 y146 w59 h21  Center Number vClickAmount gUDCLAM,% ClickAmount
+Gui,1:Add,Edit,x253 y191 w59 h21  Center ReadOnly vClickCounter,% ClickCounter
+HB_Button.Push( New HB_Flat_Rounded_Button_Type_1( x:=330  , y := 186 , w := 100 , h := 30 , Button_Color := "666666" , Button_Background_Color := "404040" , Text := "Reset Counter" , Font := "Arial" , Font_Size := 10 " Bold" , Font_Color_Top := "E8D705" , Font_Color_Bottom := "111111" , Window := "1" , Label := "ResetClickCounter" , Default_Button := 0 , Roundness:=2 ) )
+HB_Button.Push( New HB_Flat_Rounded_Button_Type_1( x:=175  , y := 225 , w := 150 , h := 47 , Button_Color := "666666" , Button_Background_Color := "373737" , Text := "Hotkeys / Settings" , Font := "Arial" , Font_Size := 10 " Bold" , Font_Color_Top := "E8D705" , Font_Color_Bottom := "111111" , Window := "1" , Label := "ReSettings" , Default_Button := 0 , Roundness:=6 ) )
+HB_Button.Push( New HB_Flat_Rounded_Button_Type_1( x+=w+5  , y := 225 , w := 107 , h := 47 , Button_Color := "666666" , Button_Background_Color := "373737" , Text := "Reload" , Font := "Arial" , Font_Size := 10 " Bold" , Font_Color_Top := "E8D705" , Font_Color_Bottom := "111111" , Window := "1" , Label := "RC" , Default_Button := 0 , Roundness:=6 ) )
+Main.Show_Window()
+GuiControl , % HB_Button[ 1 ].Window ": Focus" , % HB_Button[ 1 ].Hwnd
+SetTimer, HB_Button_Hover , 50
+return
+GuiClose:
+;~ GuiContextMenu:
+;~ *Esc::
+	ExitApp	
+Tag(){
+	try
+		run,https://www.youtube.com/channel/UCge0TKjySLXd8xeLib8F0rA
+}
+Move_Window(){
+	PostMessage,0xA1,2
+}
+Min_Window(){
+	Gui,1:Minimize
+}
+AlwaysOnTop:
+	if(Always.State=1)
+		Gui,1:+Alwaysontop
+	else
+		Gui,1:-AlwaysOnTop
+	return	
+RC(){
+	GuiControl , % HB_Button[ A_GuiControl ].Window ": Focus" , % HB_Button[ A_GuiControl ].Hwnd
+	if( ! HB_Button[ A_GuiControl ].Draw_Pressed() )
+		return
+	Reload
+}
+ResetClickCounter(){
+	GuiControl , % HB_Button[ A_GuiControl ].Window ": Focus" , % HB_Button[ A_GuiControl ].Hwnd
+	if( ! HB_Button[ A_GuiControl ].Draw_Pressed() )
+		return
+	GuiControl,1:,ClickCounter,% ClickCounter:=0
+}
+SetPosition(){
+	GuiControl , % HB_Button[ A_GuiControl ].Window ": Focus" , % HB_Button[ A_GuiControl ].Hwnd
+	if( ! HB_Button[ A_GuiControl ].Draw_Pressed() )
+		return
+	While(!GetKeyState("ctrl"))
+		ToolTip,Move your cursor to the position you want to set `nand then press " ctrl " `n(The control key on your keyboard)
+	MouseGetPos,Cx,Cy
+	ToolTip,
+	GuiControl,1:,% Click_Position,% "x: " Cx "   y: " Cy
+}
+UDCLAM(){
+	GuiControlGet,ClickAmount,1:,ClickAmount
+}
+SCD(){
+	GuiControlGet,ClickDelay,1:,ClickDelay
+}
+RUNACNOW(){
+	Stop:=0
+	(ClickTypeGroup[1].State=1)?(SetPosClick()):(FC())
+}
+SetPosClick(){
+	SetMouseDelay,% MouseDelay
+	(!Cx||!Cy)?(SetPosMsg(),Stop:=1,return)
+	if(Click_Forever.State=1){
+		if(PlaySounds.State=1)
+			Loop,2
+				SoundBeep,400
+		if(ClickCountGroup[1].Value=1){
+			While(!Stop){
+				Click,%Cx% %Cy%
+				Sleep,% ClickDelay
+			}
+			if(PlaySounds.State=1)
+				Loop,3
+					SoundBeep,700
+			return	
+		}else if(ClickCountGroup[1].Value=2){
+			While(!Stop){
+				Click,%Cx% %Cy%
+				GuiControl,1:,ClickCounter,% ++ClickCounter
+				Sleep,% ClickDelay
+			}
+			if(PlaySounds.State=1)
+				Loop,3
+					SoundBeep,700
+			return
+		}else if(ClickCountGroup[1].Value=3){
+			While(!Stop){
+				Click,%Cx% %Cy%
+				Tooltip,% ++ClickCounter
+				Sleep,% ClickDelay
+			}
+			if(PlaySounds.State=1)
+				Loop,3
+					SoundBeep,700
+			Tooltip,
+			GuiControl,1:,ClickCounter,% ClickCounter
+			return
+		}
+	}else if(Click_Forever.State=0){
+		if(PlaySounds.State=1)
+			Loop,2
+				SoundBeep,400
+		currentclicks:=0
+		if(ClickCountGroup[1].Value=1){
+			While(!Stop&&currentclicks<ClickAmount){
+				Click,%Cx% %Cy%
+				currentclicks++
+				Sleep,% ClickDelay
+			}
+			if(PlaySounds.State=1)
+				Loop,3
+					SoundBeep,700
+			return	
+		}else if(ClickCountGroup[1].Value=2){
+			While(!Stop&&currentclicks<ClickAmount){
+				Click,%Cx% %Cy%
+				currentclicks++
+				GuiControl,1:,ClickCounter,% ++ClickCounter
+				Sleep,% ClickDelay
+			}
+			if(PlaySounds.State=1)
+				Loop,3
+					SoundBeep,700
+			return
+		}else if(ClickCountGroup[1].Value=3){
+			While(!Stop&&currentclicks<ClickAmount){
+				Click,%Cx% %Cy%
+				currentclicks++
+				Tooltip,% ++ClickCounter
+				Sleep,% ClickDelay
+			}
+			if(PlaySounds.State=1)
+				Loop,3
+					SoundBeep,700
+			Tooltip,
+			GuiControl,1:,ClickCounter,% ClickCounter
+			return
+		}
+	}
+}
+FC(){
+	SetMouseDelay,% MouseDelay
+	if(Click_Forever.State=1){
+		if(PlaySounds.State=1)
+			Loop,2
+				SoundBeep,400
+		if(ClickCountGroup[1].Value=1){
+			While(!Stop){
+				Click,
+				Sleep,% ClickDelay
+			}
+			if(PlaySounds.State=1)
+				Loop,3
+					SoundBeep,700
+			return	
+		}else if(ClickCountGroup[1].Value=2){
+			While(!Stop){
+				Click,
+				GuiControl,1:,ClickCounter,% ++ClickCounter
+				Sleep,% ClickDelay
+			}
+			if(PlaySounds.State=1)
+				Loop,3
+					SoundBeep,700
+			return
+		}else if(ClickCountGroup[1].Value=3){
+			While(!Stop){
+				Click,
+				Tooltip,% ++ClickCounter
+				Sleep,% ClickDelay
+			}
+			if(PlaySounds.State=1)
+				Loop,3
+					SoundBeep,700
+			Tooltip,
+			GuiControl,1:,ClickCounter,% ClickCounter
+			return
+		}
+	}else if(Click_Forever.State=0){
+		if(PlaySounds.State=1)
+			Loop,2
+				SoundBeep,400
+		currentclicks:=0
+		if(ClickCountGroup[1].Value=1){
+			While(!Stop&&currentclicks<ClickAmount){
+				Click,
+				currentclicks++
+				Sleep,% ClickDelay
+			}
+			if(PlaySounds.State=1)
+				Loop,3
+					SoundBeep,700
+			return	
+		}else if(ClickCountGroup[1].Value=2){
+			While(!Stop&&currentclicks<ClickAmount){
+				Click,
+				currentclicks++
+				GuiControl,1:,ClickCounter,% ++ClickCounter
+				Sleep,% ClickDelay
+			}
+			if(PlaySounds.State=1)
+				Loop,3
+					SoundBeep,700
+			return
+		}else if(ClickCountGroup[1].Value=3){
+			While(!Stop&&currentclicks<ClickAmount){
+				Click,
+				currentclicks++
+				Tooltip,% ++ClickCounter
+				Sleep,% ClickDelay
+			}
+			if(PlaySounds.State=1)
+				Loop,3
+					SoundBeep,700
+			Tooltip,
+			GuiControl,1:,ClickCounter,% ClickCounter
+			return
+		}
+	}
+}
+STCLer(){
+	Stop:=1
+}
+SubMouseDelay(){
+	GuiControlGet,MouseDelay,2:,MouseDelay
+}
+DSW(){
+	GuiControl , % HB_Button[ A_GuiControl ].Window ": Focus" , % HB_Button[ A_GuiControl ].Hwnd
+	if( ! HB_Button[ A_GuiControl ].Draw_Pressed() )
+		return
+	Gui,2:Hide
+}
+SetPosMsg(){
+	Gui,1:+OwnDialogs
+	if(PlaySounds.State=1)
+		Loop 3
+			SoundBeep,500
+	msgbox,,Error,You need to set the click position!	
+}
+CheckStop(){
+	(Stop=0)?(ClickTypeGroup[1].State=0)?(Stop:=1)
+}
+ReSettings(){
+	GuiControl , % HB_Button[ A_GuiControl ].Window ": Focus" , % HB_Button[ A_GuiControl ].Hwnd
+	if( ! HB_Button[ A_GuiControl ].Draw_Pressed() )
+		return
+	(SetA=1)?(SSW()):(SetA:=1,SettingWindow())
+}
+SSW(){
+	Stop:=1
+	SettingsMenu.Show_Window()
+	WingetPos,ssx,ssy,,,SS Clicker
+	Gui,2:Show,% "x" ssx-20 " y" ssy-10
+	GuiControl , % HB_Button[ HB_Button.Length() ].Window ": Focus" , % HB_Button[ HB_Button.Length() ].Hwnd
+}
+UPHK1(){
+	GuiControl , % HB_Button[ A_GuiControl ].Window ": Focus" , % HB_Button[ A_GuiControl ].Hwnd
+	if( ! HB_Button[ A_GuiControl ].Draw_Pressed() )
+		return
+	GuiControlGet,newkey,,StartKey
+	if(newkey!=Startkey&&newkey!=null){
+		Hotkey,%StartKey%,RUNACNOW,Off
+		StartKey:=NewKey
+		Hotkey,%StartKey%,RUNACNOW,On
+	}
+}
+UPHK2(){
+	GuiControl , % HB_Button[ A_GuiControl ].Window ": Focus" , % HB_Button[ A_GuiControl ].Hwnd
+	if( ! HB_Button[ A_GuiControl ].Draw_Pressed() )
+		return
+	GuiControlGet,newkey,,StopKey
+	if(newkey!=StopKey&&newkey!=null){
+		Hotkey,%StopKey%,STCLer,Off
+		StopKey:=NewKey
+		Hotkey,%StopKey%,STCLer,On
+	}
+}
+GMC(){
+	GuiControl , % HB_Button[ A_GuiControl ].Window ": Focus" , % HB_Button[ A_GuiControl ].Hwnd
+	if( ! HB_Button[ A_GuiControl ].Draw_Pressed() )
+		return
+	try
+		Run,https://www.youtube.com/watch?v=D3llZxTlgvU&list=PLPI5C2_hIGGw7poIqgox3rDnyocwTxcY_
+}
+SettingWindow(){
+	global
+	SettingsMenu := New Custom_Window( x:= 0 , y:= 0 , w:= 300 , h:= 450 , Name:= "2" , Options:= "+AlwaysOnTop  -DPIScale -Caption +Owner1" , Title:= "Hotkeys & Settings" , Background_Bitmap:= SS_Clicker_SBG() )
+	Gui,2:Add,Text,x50 y5 w200 h30 BackgroundTrans gMove_Window
+	HB_Button.Push( New HB_Flat_Rounded_Button_Type_1( x := 30  , y := 125 , w := 240 , h := 50 , Button_Color := "666666" , Button_Background_Color := "404040" , Text := "Get More Free Auto Clickers" , Font := "Arial" , Font_Size := 10 " Bold" , Font_Color_Top := "E8D705" , Font_Color_Bottom := "111111" , Window := "2" , Label := "GMC" , Default_Button := 0 , Roundness:=2 ) )
+	PlaySounds := New Flat_Round_Switch_Type_1(x := 30 , y := 213 , w := 150 , Text := "Play Sound Beeps" ,Font:="Arial",FontSize:= "10 Bold" , FontColor:="E8D705" ,Window:="2",Background_Color:="404040",State:=1)
+	Gui,2:Color,222222,333333
+	Gui,2:Font,cE8D705 s8 Bold,Arial
+	Gui,2:Add,Edit,x171 y255 w100 h21 Center vMouseDelay gSubMouseDelay,% MouseDelay
+	Gui,2:Add,Hotkey,x65 y301 w100 h21 vStartKey,% StartKey
+	Gui,2:Add,Hotkey,x65 y337 w100 h21 vStopKey,% StopKey
+	HB_Button.Push( New HB_Flat_Rounded_Button_Type_1( x := 175  , y := 299 , w := 100 , h := 26 , Button_Color := "666666" , Button_Background_Color := "404040" , Text := "Update" , Font := "Arial" , Font_Size := 10 " Bold" , Font_Color_Top := "E8D705" , Font_Color_Bottom := "111111" , Window := "2" , Label := "UPHK1" , Default_Button := 0 , Roundness:=2 ) )
+	HB_Button.Push( New HB_Flat_Rounded_Button_Type_1( x := 175  , y := 335 , w := 100 , h := 26 , Button_Color := "666666" , Button_Background_Color := "404040" , Text := "Update" , Font := "Arial" , Font_Size := 10 " Bold" , Font_Color_Top := "E8D705" , Font_Color_Bottom := "111111" , Window := "2" , Label := "UPHK2" , Default_Button := 0 , Roundness:=2 ) )
+	HB_Button.Push( New HB_Flat_Rounded_Button_Type_1( x := 60  , y := 380 , w := 180 , h := 50 , Button_Color := "666666" , Button_Background_Color := "373737" , Text := "OK" , Font := "Arial" , Font_Size := 16 " Bold" , Font_Color_Top := "E8D705" , Font_Color_Bottom := "111111" , Window := "2" , Label := "DSW" , Default_Button := 0 , Roundness:=5 ) )
+	SettingsMenu.Show_Window()
+	WingetPos,ssx,ssy,,,SS Clicker
+	Gui,2:Show,% "x" ssx-20 " y" ssy-10
+	GuiControl , % HB_Button[ HB_Button.Length() ].Window ": Focus" , % HB_Button[ HB_Button.Length() ].Hwnd
+}
+class Flat_Round_Radio_Type_1	{
+	__New(x,y,w:=19,Text:="Text",Font:="Arial",FontSize:= "10 Bold" , FontColor:="FFFFFF" ,Window:="1",Background_Color:="36373A",HighLightColor:="1A1C1F",State:=0,GroupArray:=""){
+		This.State:=State
+		This.X:=x
+		This.Y:=y
+		This.W:=W
+		This.H:=19
+		This.Text:=Text
+		This.Font:=Font
+		This.FontSize:=FontSize
+		This.FontColor:="0xFF" FontColor
+		This.HighLightColor:= "0xFF" HighLightColor
+		This.GroupArray:=GroupArray
+		This.Name:=This.GroupArray.Length()+1
+		This.Background_Color:="0xFF" Background_Color
+		This.Window:=Window
+		Loop,% This.GroupArray.Length()	{
+			if(This.GroupArray[A_Index].State=1){
+				This.Value:=A_Index
+				break
+			}
+		}
+		Loop,% This.GroupArray.Length()	{
+				GroupArray[A_Index].Value:=This.Value
+		}
+		This.Create_Off_Bitmap()
+		This.Create_On_Bitmap()
+		This.Create_Trigger()
+		sleep,20
+		if(This.State)
+			This.Draw_On()
+		else
+			This.Draw_Off()
+	}
+	Create_Trigger(){
+		Gui , % This.Window ": Add" , Picture , % "x" This.X " y" This.Y " w" This.W " h" This.H " 0xE hwndHwnd"
+		This.Hwnd:=hwnd
+		BD := THIS.Switch_State.BIND( THIS ) 
+		GUICONTROL +G , % This.Hwnd , % BD
+	}
+	Create_Off_Bitmap(){
+		;Bitmap Created Using: HB Bitmap Maker
+		pBitmap:=Gdip_CreateBitmap( This.W , 19 ) 
+		 G := Gdip_GraphicsFromImage( pBitmap )
+		Gdip_SetSmoothingMode( G , 2 )
+		Brush := Gdip_BrushCreateSolid( This.Background_Color )
+		Gdip_FillRectangle( G , Brush , -1 , -1 , This.W+2 , 21 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( "0xFF313436" )
+		Gdip_FillEllipse( G , Brush , 1 , 1 , 17 , 17 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( "0xFF1A1C1F" )
+		Gdip_FillEllipse( G , Brush , 1 , 0 , 17 , 17 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_CreateLineBrushFromRect( 7 , 1 , 10 , 14 , "0xFF60646A" , "0xFF393B3F" , 1 , 1 )
+		Gdip_FillEllipse( G , Brush , 2 , 1 , 15 , 15 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_CreateLineBrushFromRect( 7 , 2 , 10 , 14 , "0xFF4A4D52" , "0xFF393B3F" , 1 , 1 )
+		Gdip_FillEllipse( G , Brush , 3 , 2 , 13 , 13 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( "0xFF4D5055" )
+		Gdip_FillEllipse( G , Brush , 7 , 7 , 5 , 6 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( "0xFF222325" )
+		Gdip_FillEllipse( G , Brush , 7 , 6 , 5 , 5 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( This.FontColor )
+		Gdip_TextToGraphics( G , This.Text , "s" This.FontSize " vCenter cFF000000 x22 y-1" , This.Font , This.W-23, This.H )
+		Gdip_TextToGraphics( G , This.Text , "s" This.FontSize " vCenter cFFeeeeee x23 y0" , This.Font , This.W-23, This.H )
+		Gdip_DeleteBrush( Brush )
+		Gdip_DeleteGraphics( G )
+		This.Off_Bitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
+		Gdip_DisposeImage(pBitmap)
+	}
+	Create_On_Bitmap(){
+		;Bitmap Created Using: HB Bitmap Maker
+		pBitmap:=Gdip_CreateBitmap( This.W , 19 ) 
+		 G := Gdip_GraphicsFromImage( pBitmap )
+		Gdip_SetSmoothingMode( G , 2 )
+		Brush := Gdip_BrushCreateSolid( This.Background_Color )
+		Gdip_FillRectangle( G , Brush , -1 , -1 , This.W+2 , 21 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( "0xFF484A4B" )
+		Gdip_FillEllipse( G , Brush , 1 , 1 , 17 , 17 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( "0xFF1A1C1F" )
+		Gdip_FillEllipse( G , Brush , 1 , 0 , 17 , 17 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( "0xFF29292F" )
+		Gdip_FillEllipse( G , Brush , 2 , 1 , 15 , 15 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_CreateLineBrushFromRect( 5 , 1 , 10 , 14 , "0xFF2E2F31" , "0xFF333337" , 1 , 1 )
+		Gdip_FillEllipse( G , Brush , 3 , 2 , 13 , 13 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( "0xFF4D5055" )
+		Gdip_FillEllipse( G , Brush , 7 , 7 , 5 , 5 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( This.HighLightColor )
+		Gdip_FillEllipse( G , Brush , 7 , 6 , 5 , 5 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( This.FontColor )
+		Gdip_TextToGraphics( G , This.Text , "s" This.FontSize " vCenter cFF000000 x22 y-1" , This.Font , This.W-23, This.H )
+		Gdip_TextToGraphics( G , This.Text , "s" This.FontSize " vCenter c" Brush " x23 y0" , This.Font , This.W-23, This.H )
+		Gdip_DeleteBrush( Brush )
+		Gdip_DeleteGraphics( G )
+		This.On_Bitmap := Gdip_CreateHBITMAPFromBitmap( pBitmap )
+		Gdip_DisposeImage( pBitmap )
+	}
+	Switch_State(){
+		if(This.State!=1){
+			This.State:=1
+			This.Draw_On()
+			Loop,% This.GroupArray.Length()	{
+				if(This.GroupArray[A_Index].Name!=This.Name){
+					This.GroupArray[A_Index].State:=0
+					This.GroupArray[A_Index].Draw_Off()
+				}
+			}
+			Loop,% This.GroupArray.Length()	{
+				if(This.GroupArray[A_Index].State=1){
+					This.Value:=A_Index
+					break
+				}
+			}
+			Loop,% This.GroupArray.Length()	{
+					This.GroupArray[A_Index].Value:=This.Value
+			}
+		}
+	}
+	Draw_Off(){
+		SetImage( This.Hwnd , This.Off_Bitmap )
+	}
+	Draw_On(){
+		SetImage( This.Hwnd , This.On_Bitmap )
+	}
+}
+class Flat_Round_Switch_Type_1	{
+	__New(x,y,w:=19,Text:="Text",Font:="Arial",FontSize:= "10 Bold" , FontColor:="FFFFFF" ,Window:="1",Background_Color:="36373A",State:=0,Label:=""){
+		This.State:=State
+		This.X:=x
+		This.Y:=y
+		This.W:=w
+		This.H:=21
+		This.Text:=Text
+		This.Font:=Font
+		This.FontSize:=FontSize
+		This.FontColor:= "0xFF" FontColor
+		This.Background_Color:= "0xFF" Background_Color
+		This.Window:=Window
+		This.Create_Off_Bitmap()
+		This.Create_On_Bitmap()
+		This.Create_Trigger()
+		This.Label:=Label
+		sleep,20
+		if(This.State)
+			This.Draw_On()
+		else
+			This.Draw_Off()
+	}
+	Create_Trigger(){
+		Gui , % This.Window ": Add" , Picture , % "x" This.X " y" This.Y " w" This.W " h" This.H " 0xE hwndhwnd"
+		This.Hwnd:=hwnd
+		BD := THIS.Switch_State.BIND( THIS ) 
+		GUICONTROL +G , % This.Hwnd , % BD
+	}
+	Create_Off_Bitmap(){
+		;Bitmap Created Using: HB Bitmap Maker
+		pBitmap:=Gdip_CreateBitmap( This.W , 21 ) 
+		 G := Gdip_GraphicsFromImage( pBitmap )
+		Gdip_SetSmoothingMode( G , 2 )
+		Brush := Gdip_BrushCreateSolid( This.Background_Color )
+		Gdip_FillRectangle( G , Brush , -1 , -1 , This.W+2 , 23 )
+		Gdip_DeleteBrush( Brush )
+		Pen := Gdip_CreatePen( "0xFF44474A" , 1 )
+		Gdip_DrawRoundedRectangle( G , Pen , 1 , 2 , 26 , 14 , 5 )
+		Gdip_DeletePen( Pen )
+		Pen := Gdip_CreatePen( "0xFF1B1D1E" , 1 )
+		Gdip_DrawRoundedRectangle( G , Pen , 1 , 2 , 26 , 13 , 5 )
+		Gdip_DeletePen( Pen )
+		Brush := Gdip_BrushCreateSolid( "0xFF262827" )
+		Gdip_FillRoundedRectangle( G , Brush , 1 , 2 , 26 , 13 , 5 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( "0xFF303334" )
+		Gdip_FillRoundedRectangle( G , Brush , 2 , 3 , 24 , 11 , 5 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( "0x8827282B" )
+		Gdip_FillEllipse( G , Brush , 0 , 0 , 18 , 18 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( "0xFF1A1C1F" )
+		Gdip_FillEllipse( G , Brush , 0 , 0 , 17 , 17 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_CreateLineBrushFromRect( 3 , 2 , 11 , 14 , "0xFF60646A" , "0xFF393B3F" , 1 , 1 )
+		Gdip_FillEllipse( G , Brush , 1 , 1 , 15 , 15 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_CreateLineBrushFromRect( 5 , 3 , 10 , 12 , "0xFF4D5055" , "0xFF36383B" , 1 , 1 )
+		Gdip_FillEllipse( G , Brush , 2 , 2 , 13 , 13 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( This.FontColor )
+		Gdip_TextToGraphics( G , This.Text , "s" This.FontSize " vCenter cFF000000 x32 y-1" , This.Font , This.W-33, This.H )
+		Gdip_TextToGraphics( G , This.Text , "s" This.FontSize " vCenter cFFeeeeee  x33 y0" , This.Font , This.W-33, This.H )
+		Gdip_DeleteBrush( Brush )
+		Gdip_DeleteGraphics( G )
+		This.Off_Bitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
+		Gdip_DisposeImage(pBitmap)
+	}
+	Create_On_Bitmap(){
+		;Bitmap Created Using: HB Bitmap Maker
+		pBitmap:=Gdip_CreateBitmap( This.W , 21 ) 
+		 G := Gdip_GraphicsFromImage( pBitmap )
+		Gdip_SetSmoothingMode( G , 2 )
+		Brush := Gdip_BrushCreateSolid( This.Background_Color )
+		Gdip_FillRectangle( G , Brush , -1 , -1 , This.W+2 , 23 )
+		Gdip_DeleteBrush( Brush )
+		Pen := Gdip_CreatePen( "0xFF44474A" , 1 )
+		Gdip_DrawRoundedRectangle( G , Pen , 1 , 2 , 26 , 14 , 5 )
+		Gdip_DeletePen( Pen )
+		Pen := Gdip_CreatePen( "0xFF1B1D1E" , 1 )
+		Gdip_DrawRoundedRectangle( G , Pen , 1 , 2 , 26 , 13 , 5 )
+		Gdip_DeletePen( Pen )
+		Brush := Gdip_BrushCreateSolid( "0xFF716A24" )
+		Gdip_FillRoundedRectangle( G , Brush , 2 , 3 , 25 , 11 , 5 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( "0xFFBAAD11" )
+		Gdip_FillRoundedRectangle( G , Brush , 2 , 5 , 23 , 9 , 4 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( "0x8827282B" )
+		Gdip_FillEllipse( G , Brush , 11 , 0 , 18 , 18 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( "0xFF1A1C1F" )
+		Gdip_FillEllipse( G , Brush , 11 , 0 , 17 , 17 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_CreateLineBrushFromRect( 3 , 2 , 11 , 14 , "0xFF60646A" , "0xFF393B3F" , 1 , 1 )
+		Gdip_FillEllipse( G , Brush , 12 , 1 , 15 , 15 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_CreateLineBrushFromRect( 5 , 3 , 10 , 12 , "0xFF4D5055" , "0xFF36383B" , 1 , 1 )
+		Gdip_FillEllipse( G , Brush , 13 , 2 , 13 , 13 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( This.FontColor )
+		Gdip_TextToGraphics( G , This.Text , "s" This.FontSize " vCenter cFF000000 x32 y-1" , This.Font , This.W-33, This.H )
+		Gdip_TextToGraphics( G , This.Text , "s" This.FontSize " vCenter c" Brush " x33 y0" , This.Font , This.W-33, This.H )
+		Gdip_DeleteBrush( Brush )
+		Gdip_DeleteGraphics( G )
+		This.On_Bitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
+		Gdip_DisposeImage(pBitmap)
+	}
+	Switch_State(){
+		(This.State:=!This.State)?(This.Draw_On()):(This.Draw_Off())
+		if(This.Label)	
+			gosub,% This.Label
+	}
+	Draw_Off(){
+		SetImage( This.Hwnd , This.Off_Bitmap )
+	}
+	Draw_On(){
+		SetImage( This.Hwnd , This.On_Bitmap )
+	}
+}
+HB_Button_Hover(){
+	Static Index , Hover_On
+	MouseGetPos,,,, ctrl , 2
+	if( ! Hover_On && ctrl ){
+		loop , % HB_Button.Length()
+			if( ctrl = HB_Button[ A_Index ].hwnd )
+				HB_Button[ A_Index ].Draw_Hover() , Index := A_Index , Hover_On := 1 , break
+	}else if( Hover_On = 1 )
+		if( ctrl != HB_Button[ Index ].Hwnd )
+			HB_Button[ Index ].Draw_Default() , Hover_On := 0
+}
+class HB_Flat_Rounded_Button_Type_1	{
+	__New( x := 10 , y := 10 , w := 150 , h := 40 , Button_Color := "FF0000" , Button_Background_Color := "222222" , Text := "Button" , Font := "Arial" , Font_Size := 16 , Font_Color_Top := "000000" , Font_Color_Bottom := "FFFFFF" , Window := "1" , Label := "" , Default_Button := 1, Roundness:=5 ){
+		This.Roundness:=Roundness
+		This.Text_Color_Top := "0xFF" Font_Color_Top 
+		This.Text_Color_Bottom := "0xFF" Font_Color_Bottom 
+		This.Font := Font 
+		This.Font_Size := Font_Size 
+		This.Text := Text
+		This.X := x 
+		This.Y := y 
+		This.W := w 
+		This.H := h 
+		This.Button_Background_Color := "0xFF" Button_Background_Color 
+		This.Button_Color := "0xFF" Button_Color 
+		This.Window := Window
+		This.Label := Label 
+		This.Default_Button := Default_Button 
+		This.Create_Default_Bitmap() 
+		This.Create_Hover_Bitmap() 
+		This.Create_Pressed_Bitmap() 
+		This.Create_Trigger()
+		sleep, 20
+		This.Draw_Default()
+	}
+	Create_Trigger(){
+		global
+		num := HB_Button.Length()+1
+		Gui , % This.Window ": Add" , Picture , % "x" This.X " y" This.Y " w" This.W " h" This.H " hwndHwnd v" Num " g" This.Label " 0xE"
+		This.Number := Num , This.Hwnd := Hwnd
+	}
+	Create_Default_Bitmap(){
+		;Bitmap Created Using: HB Bitmap Maker
+		pBitmap:=Gdip_CreateBitmap( This.W , This.H )
+		 G := Gdip_GraphicsFromImage( pBitmap )
+		Gdip_SetSmoothingMode( G , 2 )
+		Brush := Gdip_BrushCreateSolid( This.Button_Background_Color )
+		Gdip_FillRectangle( G , Brush , -1 , -1 , This.W+2 , This.H+2 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_CreateLineBrushFromRect( 0 , 0 , This.W , This.H , "0xFF61646A" , "0xFF2E2124" , 1 , 1 )
+		Gdip_FillRoundedRectangle( G , Brush , 0 , 1 , This.W , This.H-3 , This.Roundness )
+		Gdip_DeleteBrush( Brush )
+		if(This.Default_Button)
+			Brush := Gdip_CreateLineBrushFromRect( 0 , 0 , This.W , This.H , "0xFF4C4F54" , "0xFF35373B" , 1 , 1 )
+		else 	
+			Brush := Gdip_CreateLineBrushFromRect( 0 , 0 , This.W , This.H , This.Button_Color , "0xFF35373B" , 1 , 1 )
+		Gdip_FillRoundedRectangle( G , Brush , 1 , 2 , This.W-2 , This.H-5 , This.Roundness )
+		Gdip_DeleteBrush( Brush )
+		Pen := Gdip_CreatePen( "0xFF1A1C1F" , 1 )
+		Gdip_DrawRoundedRectangle( G , Pen , 0 , 0 , This.W-1 , This.H-3 , This.Roundness )
+		Gdip_DeletePen( Pen )
+		Brush := Gdip_BrushCreateSolid( This.Text_Color_Bottom )
+		Gdip_TextToGraphics( G , This.Text , "s" This.Font_Size " Center vCenter c" Brush " x1 y2 " , This.Font , This.W , This.H-1 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( This.Text_Color_Top )
+		Gdip_TextToGraphics( G , This.Text , "s" This.Font_Size " Center vCenter c" Brush " x0 y1 " , This.Font , This.W , This.H-1 )
+		Gdip_DeleteBrush( Brush )
+		Gdip_DeleteGraphics( G )
+		This.Default_Bitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
+		Gdip_DisposeImage(pBitmap)
+	}
+	Create_Hover_Bitmap(){
+		;Bitmap Created Using: HB Bitmap Maker
+		pBitmap:=Gdip_CreateBitmap( This.W , This.H )
+		 G := Gdip_GraphicsFromImage( pBitmap )
+		Gdip_SetSmoothingMode( G , 2 )
+		Brush := Gdip_BrushCreateSolid( This.Button_Background_Color )
+		Gdip_FillRectangle( G , Brush , -1 , -1 , This.W+2 , This.H+2 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_CreateLineBrushFromRect( 0 , 0 , This.W , This.H , "0xFF61646A" , "0xFF2E2124" , 1 , 1 )
+		Gdip_FillRoundedRectangle( G , Brush , 0 , 1 , This.W , This.H-3 , This.Roundness )
+		Gdip_DeleteBrush( Brush )
+		if(This.Default_Button)
+			Brush := Gdip_CreateLineBrushFromRect( 0 , 0 , This.W , This.H , "0xFF55585D" , "0xFF3B3E41" , 1 , 1 )
+		else 
+			Brush := Gdip_CreateLineBrushFromRect( 0 , 0 , This.W , This.H , "0x77E8D705" , "0xFF3B3E41" , 1 , 1 )
+		Gdip_FillRoundedRectangle( G , Brush , 1 , 2 , This.W-2 , This.H-5 , This.Roundness )
+		Gdip_DeleteBrush( Brush )
+		Pen := Gdip_CreatePen( "0xFF1A1C1F" , 1 )
+		Gdip_DrawRoundedRectangle( G , Pen , 0 , 0 , This.W-1 , This.H-3 , This.Roundness )
+		Gdip_DeletePen( Pen )
+		Brush := Gdip_BrushCreateSolid( This.Text_Color_Bottom )
+		Gdip_TextToGraphics( G , This.Text , "s" This.Font_Size " Center vCenter c" Brush " x1 y2" , This.Font , This.W , This.H-1 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( This.Text_Color_Top )
+		Gdip_TextToGraphics( G , This.Text , "s" This.Font_Size " Center vCenter c" Brush " x0 y1" , This.Font , This.W , This.H-1 )
+		Gdip_DeleteBrush( Brush )
+		Gdip_DeleteGraphics( G )
+		This.Hover_Bitmap := Gdip_CreateHBITMAPFromBitmap(pBitmap)
+		Gdip_DisposeImage(pBitmap)
+	}
+	Create_Pressed_Bitmap(){
+		pBitmap:=Gdip_CreateBitmap( This.W , This.H )
+		 G := Gdip_GraphicsFromImage( pBitmap )
+		Gdip_SetSmoothingMode( G , 2 )
+		Brush := Gdip_BrushCreateSolid( This.Button_Background_Color )
+		Gdip_FillRectangle( G , Brush , -1 , -1 , This.W+2 , This.H+2 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_CreateLineBrushFromRect( 0 , 0 , This.W , This.H , "0xFF2A2C2E" , "0xFF45474E" , 1 , 1 )
+		Gdip_FillRoundedRectangle( G , Brush , 0 , 1 , This.W , This.H-3 , This.Roundness )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( "0xFF2A2C2E" )
+		Gdip_FillRoundedRectangle( G , Brush , 0 , 0 , This.W , This.H-8 , This.Roundness )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( "0xFF46474D" )
+		Gdip_FillRoundedRectangle( G , Brush , 0 , 7 , This.W , This.H-8 , This.Roundness )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_CreateLineBrushFromRect( 5 , 3 , This.W ,This.H-7 , "0xFF333639" , "0xFF43474B" , 1 , 1 )
+		Gdip_FillRoundedRectangle( G , Brush , 1 , 2 , This.W-3 , This.H-6 , This.Roundness )
+		Gdip_DeleteBrush( Brush )
+		Pen := Gdip_CreatePen( "0xFF1A1C1F" , 1 )
+		Gdip_DrawRoundedRectangle( G , Pen , 0 , 0 , This.W-1 , This.H-3 , This.Roundness )
+		Gdip_DeletePen( Pen )
+		Brush := Gdip_BrushCreateSolid( This.Text_Color_Bottom )
+		Gdip_TextToGraphics( G , This.Text , "s" This.Font_Size " Center vCenter c" Brush " x1 y3" , This.Font , This.W , This.H-1 )
+		Gdip_DeleteBrush( Brush )
+		Brush := Gdip_BrushCreateSolid( This.Text_Color_Top )
+		Gdip_TextToGraphics( G , This.Text , "s" This.Font_Size " Center vCenter c" Brush " x0 y2" , This.Font , This.W , This.H-1 )
+		Gdip_DeleteBrush( Brush )
+		Gdip_DeleteGraphics( G )
+		This.Pressed_Bitmap := Gdip_CreateHBITMAPFromBitmap( pBitmap )
+		Gdip_DisposeImage( pBitmap )
+	}
+	Draw_Default(){
+		SetImage( This.Hwnd , This.Default_Bitmap )
+	}
+	Draw_Hover(){
+		SetImage( This.Hwnd , This.Hover_Bitmap )
+	}
+	Draw_Pressed(){
+		SetImage( This.Hwnd , This.Pressed_Bitmap )
+		SetTimer , HB_Button_Hover , Off
+		While( GetKeyState( "LButton" ) )
+			sleep , 10
+		SetTimer , HB_Button_Hover , On
+		MouseGetPos,,,, ctrl , 2
+		if( This.Hwnd != ctrl ){
+			This.Draw_Default()
+			return False
+		}else	{
+			This.Draw_Hover()
+			return true
+		}
+	}
+}
+Class Custom_Window	{
+	__New(x:="",y:="",w:=300,h:=200,Name:=1,Options:="+AlwaysOnTop -Caption -DPIScale",Title:="",Background_Bitmap:=""){
+		This.X:=x
+		This.Y:=y
+		This.W:=w
+		This.H:=h
+		This.Name:=Name
+		This.Title:=Title
+		This.Options:=Options
+		This.Background_Bitmap:=Background_Bitmap
+		This.Create_Window()
+	}
+	Create_Window(){
+		Gui,% This.Name ":New",%  This.Options " +LastFound"
+		This.Hwnd:=WinExist()
+		if(This.Background_Bitmap)
+			This.Draw_Background_Bitmap()
+	}
+	Draw_Background_Bitmap(){
+		This.Bitmap:=Gdip_CreateHBITMAPFromBitmap(This.Background_Bitmap)
+		Gdip_DisposeImage(This.Background_Bitmap)
+		Gui,% This.Name ":Add",Picture,% "x0 y0 w" This.W " h" This.H " 0xE hwndhwnd"
+		This.Background_Hwnd:=hwnd
+		SetImage(This.Background_Hwnd,This.Bitmap)
+	}
+	Show_Window(){
+		if(This.X&&This.Y)
+			Gui,% This.Name ":Show",% "x" This.X " y" This.Y " w" This.W " h" This.H,% This.Title
+		else if(This.X&&!This.Y)
+			Gui,% This.Name ":Show",% "x" This.X  " w" This.W " h" This.H,% This.Title
+		else if(!This.X&&This.Y)
+			Gui,% This.Name ":Show",% "y" This.Y  " w" This.W " h" This.H,% This.Title
+		else
+			Gui,% This.Name ":Show",% " w" This.W " h" This.H,% This.Title
+	}
+}
+SS_CLICKER_BG(){
+	;Bitmap Created Using: HB Bitmap Maker
+	pBitmap:=Gdip_CreateBitmap( 450 , 300 ) 
+	 G := Gdip_GraphicsFromImage( pBitmap )
+	Gdip_SetSmoothingMode( G , 4 )
+	Brush := Gdip_CreateLineBrush( 21 , 12 , 35 , 49 , "0xFFFEEB00" , "0xFF333333" , 1 )
+	Gdip_FillRectangle( G , Brush , -1 , -1 , 453 , 302 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_CreateLineBrushFromRect( 0 , -1 , 445 , 301 , "0x33FEEB00" , "0x66333333" , 1 , 1 )
+	Gdip_FillRectangle( G , Brush , -1 , -1 , 453 , 303 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_CreateLineBrushFromRect( -2 , -1 , 3 , 300 , "0xFFF0F0F0" , "0xFF333333" , 1 , 1 )
+	Pen := Gdip_CreatePenFromBrush( Brush , 2 )
+	Gdip_DeleteBrush( Brush )
+	Gdip_DrawLine( G , Pen , 0 , -3 , 0 , 300 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_CreateLineBrushFromRect( -2 , -1 , 3 , 300 , "0xFF333333" , "0xFF000000" , 1 , 1 )
+	Pen := Gdip_CreatePenFromBrush( Brush , 2 )
+	Gdip_DeleteBrush( Brush )
+	Gdip_DrawLine( G , Pen , 449 , -3 , 449 , 300 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_CreateLineBrush( -1 , 0 , 450 , 1 , "0xFFF0F0F0" , "0xFF333333" , 1 )
+	Pen := Gdip_CreatePenFromBrush( Brush , 2 )
+	Gdip_DeleteBrush( Brush )
+	Gdip_DrawLine( G , Pen , -1 , 0 , 450 , 0 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_CreateLineBrush( -1 , 298 , 449 , 296 , "0xFF333333" , "0xFF000000" , 1 )
+	Pen := Gdip_CreatePenFromBrush( Brush , 2 )
+	Gdip_DeleteBrush( Brush )
+	Gdip_DrawLine( G , Pen , -1 , 299 , 450 , 299 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_CreateLineBrush( 25 , 22 , 10 , 7 , "0xFF555555" , "0xFF222222" , 1 )
+	Gdip_FillRectangle( G , Brush , 5 , 5 , 25 , 25 )
+	Gdip_DeleteBrush( Brush )
+	Pen := Gdip_CreatePen( "0xFF000000" , 1 )
+	Gdip_DrawRectangle( G , Pen , 5 , 5 , 25 , 25 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_CreateLineBrushFromRect( 101 , -13 , 244 , 58 , "0xFF777777" , "0xFF000000" , 1 , 1 )
+	Gdip_FillRectangle( G , Brush , 100 , 5 , 250 , 30 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF373737" )
+	Gdip_FillRectangle( G , Brush , 4 , 38 , 440 , 240 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0x99333333" )
+	Gdip_FillRectangle( G , Brush , 150 , 280 , 150 , 15 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_CreateLineBrush( 168 , 279 , 202 , 294 , "0xFFF9f701" , "0xFF333333" , 1 )
+	Gdip_TextToGraphics( G , "HB Auto Clickers" , "s10 Center vCenter Bold c" Brush " x150 y282" , "Arial" , 150 , 15 )
+	Gdip_DeleteBrush( Brush )
+	Pen := Gdip_CreatePen( "0xFF888888" , 1 )
+	Gdip_DrawLine( G , Pen , 5 , 5 , 5 , 29 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF888888" , 1 )
+	Gdip_DrawLine( G , Pen , 5 , 5 , 30 , 5 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_CreateLineBrush( 3 , 39 , 4 , 277 , "0xFF000000" , "0xFF333333" , 1 )
+	Pen := Gdip_CreatePenFromBrush( Brush , 1 )
+	Gdip_DeleteBrush( Brush )
+	Gdip_DrawLine( G , Pen , 4 , 38 , 4 , 278 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_CreateLineBrush( 442 , 39 , 444 , 276 , "0xFF333333" , "0xFFF0F0F0" , 1 )
+	Pen := Gdip_CreatePenFromBrush( Brush , 1 )
+	Gdip_DeleteBrush( Brush )
+	Gdip_DrawLine( G , Pen , 444 , 38 , 444 , 277 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_CreateLineBrush( 3 , 37 , 444 , 38 , "0xFF000000" , "0xFF333333" , 1 )
+	Pen := Gdip_CreatePenFromBrush( Brush , 1 )
+	Gdip_DeleteBrush( Brush )
+	Gdip_DrawLine( G , Pen , 5 , 38 , 443 , 38 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_CreateLineBrush( 3 , 277 , 445 , 278 , "0xFF333333" , "0xFFF0F0F0" , 1 )
+	Pen := Gdip_CreatePenFromBrush( Brush , 1 )
+	Gdip_DeleteBrush( Brush )
+	Gdip_DrawLine( G , Pen , 5 , 278 , 443 , 278 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFFF0F0F0" , 1 )
+	Gdip_DrawLine( G , Pen , 100 , 5 , 100 , 35 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFFF0F0F0" , 1 )
+	Gdip_DrawLine( G , Pen , 100 , 5 , 350 , 5 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF000000" , 1 )
+	Gdip_DrawLine( G , Pen , 100 , 35 , 350 , 35 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF000000" , 1 )
+	Gdip_DrawLine( G , Pen , 350 , 5 , 350 , 35 )
+	Gdip_DeletePen( Pen )
+	col:="0xFF000000"
+	col2:="0xFFF5C900"
+	Brush := Gdip_BrushCreateSolid( col )
+	Gdip_TextToGraphics( G , "SS Clicker" , "s14 Center vCenter Bold c" Brush " x100 y6" , "Arial" , 250 , 30 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( col )
+	Gdip_TextToGraphics( G , "SS Clicker" , "s14 Center vCenter Bold c" Brush " x102 y6" , "Arial" , 250 , 30 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( col )
+	Gdip_TextToGraphics( G , "SS Clicker" , "s14 Center vCenter Bold c" Brush " x102 y8" , "Arial" , 250 , 30 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( col )
+	Gdip_TextToGraphics( G , "SS Clicker" , "s14 Center vCenter Bold c" Brush " x100 y8" , "Arial" , 250 , 30 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( col2 )
+	Gdip_TextToGraphics( G , "SS Clicker" , "s14 Center vCenter Bold c" Brush " x101 y7" , "Arial" , 250 , 30 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "HB" , "s12 Center vCenter Bold c" Brush " x-7 y-5" , "Arial" , 50 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "HB" , "s12 Center vCenter Bold c" Brush " x-5 y-5" , "Arial" , 50 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "HB" , "s12 Center vCenter Bold c" Brush " x-5 y-3" , "Arial" , 50 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "HB" , "s12 Center vCenter Bold c" Brush " x-7 y-3" , "Arial" , 50 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF000000" )
+	Gdip_TextToGraphics( G , "HB" , "s12 Center vCenter Bold c" Brush " x-6 y-4" , "Arial" , 50 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_CreateLineBrushFromRect( 426 , 7 , 4 , 16 , "0xFF555555" , "0xFF000000" , 1 , 1 )
+	Gdip_FillRectangle( G , Brush , 425 , 6 , 15 , 15 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_CreateLineBrushFromRect( 426 , 7 , 4 , 16 , "0xFF555555" , "0xFF000000" , 1 , 1 )
+	Gdip_FillRectangle( G , Brush , 404 , 6 , 15 , 15 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_CreateLineBrush( 423 , 7 , 440 , 22 , "0xFFF0F0F0" , "0xFF000000" , 1 )
+	Pen := Gdip_CreatePenFromBrush( Brush , 1 )
+	Gdip_DeleteBrush( Brush )
+	Gdip_DrawRectangle( G , Pen , 425 , 6 , 15 , 15 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_CreateLineBrush( 405 , 7 , 419 , 23 , "0xFFF0F0F0" , "0xFF000000" , 1 )
+	Pen := Gdip_CreatePenFromBrush( Brush , 1 )
+	Gdip_DeleteBrush( Brush )
+	Gdip_DrawRectangle( G , Pen , 404 , 6 , 15 , 15 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "_" , "s16 Center vCenter Bold c" Brush " x387 y-17" , "Segoe UI" , 50 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "_" , "s16 Center vCenter Bold c" Brush " x389 y-17" , "Segoe UI" , 50 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "_" , "s16 Center vCenter Bold c" Brush " x389 y-16" , "Segoe UI" , 50 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "_" , "s16 Center vCenter Bold c" Brush " x389 y-15" , "Segoe UI" , 50 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "_" , "s16 Center vCenter Bold c" Brush " x387 y-15" , "Segoe UI" , 50 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "_" , "s16 Center vCenter Bold c" Brush " x387 y-16" , "Segoe UI" , 50 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF000000" )
+	Gdip_TextToGraphics( G , "_" , "s16 Center vCenter Bold c" Brush " x388 y-16" , "Segoe UI" , 50 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "x" , "s12 Center vCenter Bold c" Brush " x408 y-12" , "Segoe UI" , 50 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "x" , "s12 Center vCenter Bold c" Brush " x410 y-12" , "Segoe UI" , 50 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "x" , "s12 Center vCenter Bold c" Brush " x408 y-10" , "Segoe UI" , 50 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "x" , "s12 Center vCenter Bold c" Brush " x410 y-10" , "Segoe UI" , 50 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF000000" )
+	Gdip_TextToGraphics( G , "x" , "s12 Center vCenter Bold c" Brush " x409 y-11" , "Segoe UI" , 50 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF404040" )
+	Gdip_FillRectangle( G , Brush , 138 , 44 , 300 , 40 )
+	Gdip_DeleteBrush( Brush )
+	Pen := Gdip_CreatePen( "0xFF555555" , 1 )
+	Gdip_DrawRectangle( G , Pen , 138 , 44 , 300 , 40 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF222222" , 1 )
+	Gdip_DrawLine( G , Pen , 138 , 84 , 438 , 84 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF222222" , 1 )
+	Gdip_DrawLine( G , Pen , 438 , 44 , 438 , 84 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_BrushCreateSolid( "0xFF404040" )
+	Gdip_FillRectangle( G , Brush , 9 , 90 , 429 , 40 )
+	Gdip_DeleteBrush( Brush )
+	Pen := Gdip_CreatePen( "0xFF555555" , 1 )
+	Gdip_DrawRectangle( G , Pen , 10 , 90 , 428 , 40 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF222222" , 1 )
+	Gdip_DrawLine( G , Pen , 10 , 130 , 438 , 130 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF222222" , 1 )
+	Gdip_DrawLine( G , Pen , 438 , 90 , 438 , 129 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_BrushCreateSolid( "0xFF666666" )
+	Gdip_FillRectangle( G , Brush , 290 , 99 , 130 , 22 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF000000" )
+	Gdip_TextToGraphics( G , "Position:" , "s10 Center vCenter Bold c" Brush " x229 y86" , "Arial" , 50 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFBAAD11" )
+	Gdip_TextToGraphics( G , "Position:" , "s10 Center vCenter Bold cffffffff x230 y87" , "Arial" , 50 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF404040" )
+	Gdip_FillRectangle( G , Brush , 9 , 135 , 139 , 40 )
+	Gdip_DeleteBrush( Brush )
+	Pen := Gdip_CreatePen( "0xFF555555" , 1 )
+	Gdip_DrawRectangle( G , Pen , 10 , 135 , 138 , 40 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_BrushCreateSolid( "0xFF000000" )
+	Gdip_TextToGraphics( G , "Click Delay: (ms)" , "s10 Center vCenter Bold c" Brush " x9 y131" , "Arial" , 70 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFBAAD11" )
+	Gdip_TextToGraphics( G , "Click Delay: (ms)" , "s10 Center vCenter Bold cffffffff x10 y132" , "Arial" , 70 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF666666" )
+	Gdip_FillRectangle( G , Brush , 82 , 145 , 60 , 22 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF404040" )
+	Gdip_FillRectangle( G , Brush , 153 , 135 , 285 , 40 )
+	Gdip_DeleteBrush( Brush )
+	Pen := Gdip_CreatePen( "0xFF555555" , 1 )
+	Gdip_DrawRectangle( G , Pen , 153 , 135 , 285 , 40 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_BrushCreateSolid( "0xFF000000" )
+	Gdip_TextToGraphics( G , "Amount:" , "s10 Center vCenter Bold c" Brush " x291 y131" , "Arial" , 110 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFBAAD11" )
+	Gdip_TextToGraphics( G , "Amount:" , "s10 Center vCenter Bold cffffffff x292 y132" , "Arial" , 110 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF666666" )
+	Gdip_FillRectangle( G , Brush , 372 , 145 , 60 , 22 )
+	Gdip_DeleteBrush( Brush )
+	Pen := Gdip_CreatePen( "0xFF222222" , 1 )
+	Gdip_DrawLine( G , Pen , 10 , 175 , 148 , 175 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF222222" , 1 )
+	Gdip_DrawLine( G , Pen , 153 , 175 , 438 , 175 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF222222" , 1 )
+	Gdip_DrawLine( G , Pen , 438 , 135 , 438 , 174 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF222222" , 1 )
+	Gdip_DrawLine( G , Pen , 148 , 135 , 148 , 174 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_BrushCreateSolid( "0xFF404040" )
+	Gdip_FillRectangle( G , Brush , 173 , 180 , 265 , 40 )
+	Gdip_DeleteBrush( Brush )
+	Pen := Gdip_CreatePen( "0xFF555555" , 1 )
+	Gdip_DrawRectangle( G , Pen , 173 , 180 , 265 , 40 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF222222" , 1 )
+	Gdip_DrawLine( G , Pen , 438 , 181 , 438 , 220 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF222222" , 1 )
+	Gdip_DrawLine( G , Pen , 173 , 220 , 438 , 220 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_BrushCreateSolid( "0xFF404040" )
+	Gdip_FillRectangle( G , Brush , 9 , 180 , 159 , 93 )
+	Gdip_DeleteBrush( Brush )
+	Pen := Gdip_CreatePen( "0xFF555555" , 1 )
+	Gdip_DrawRectangle( G , Pen , 9 , 180 , 159 , 93 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF222222" , 1 )
+	Gdip_DrawLine( G , Pen , 168 , 180 , 168 , 274 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF222222" , 1 )
+	Gdip_DrawLine( G , Pen , 9 , 273 , 168 , 273 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_BrushCreateSolid( "0xFF000000" )
+	Gdip_TextToGraphics( G , "Click Count:" , "s10 Center vCenter Bold c" Brush " x162 y176" , "Arial" , 110 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFBAAD11" )
+	Gdip_TextToGraphics( G , "Click Count:" , "s10 Center vCenter Bold cffffffff x163 y177" , "Arial" , 110 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF000000" )
+	Gdip_TextToGraphics( G , "Click Counter" , "s10 Center vCenter Bold Underline c" Brush " x8 y167" , "Arial" , 159 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFBAAD11" )
+	Gdip_TextToGraphics( G , "Click Counter" , "s10 Center vCenter Bold Underline cffffffff x9 y168" , "Arial" , 159 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF666666" )
+	Gdip_FillRectangle( G , Brush , 252 , 190 , 60 , 22 )
+	Gdip_DeleteBrush( Brush )
+	Gdip_DeleteGraphics( G )
+	return pBitmap
+}
+SS_Clicker_SBG(){
+	;Bitmap Created Using: HB Bitmap Maker
+	pBitmap:=Gdip_CreateBitmap( 300 , 450 ) 
+	 G := Gdip_GraphicsFromImage( pBitmap )
+	Gdip_SetSmoothingMode( G , 4 )
+	Brush := Gdip_CreateLineBrush( 106 , 154 , 142 , 198 , "0xFFFEEB00" , "0xFF333333" , 1 )
+	Gdip_FillRectangle( G , Brush , -1 , -1 , 303 , 453 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_CreateLineBrushFromRect( -1 , 0 , 305 , 451 , "0x33FEEB00" , "0x99333333" , 1 , 1 )
+	Gdip_FillRectangle( G , Brush , -1 , -1 , 303 , 453 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF373737" )
+	Gdip_FillRectangle( G , Brush , 6 , 40 , 287 , 401 )
+	Gdip_DeleteBrush( Brush )
+	Pen := Gdip_CreatePen( "0xFF999999" , 1 )
+	Gdip_DrawRectangle( G , Pen , 0 , 0 , 299 , 449 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF000000" , 1 )
+	Gdip_DrawRectangle( G , Pen , 6 , 40 , 287 , 401 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF000000" , 1 )
+	Gdip_DrawLine( G , Pen , 299 , 0 , 299 , 450 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFFffffff" , 1 )
+	Gdip_DrawLine( G , Pen , 293 , 40 , 293 , 440 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFFffffff" , 1 )
+	Gdip_DrawLine( G , Pen , 7 , 441 , 293 , 441 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF000000" , 1 )
+	Gdip_DrawLine( G , Pen , 0 , 449 , 298 , 449 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_CreateLineBrushFromRect( 51 , 6 , 199 , 32 , "0xFF777777" , "0xFF000000" , 1 , 1 )
+	Gdip_FillRectangle( G , Brush , 50 , 5 , 200 , 30 )
+	Gdip_DeleteBrush( Brush )
+	Pen := Gdip_CreatePen( "0xFFF0F0F0" , 1 )
+	Gdip_DrawRectangle( G , Pen , 50 , 5 , 200 , 30 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF000000" , 1 )
+	Gdip_DrawLine( G , Pen , 51 , 35 , 249 , 35 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF000000" , 1 )
+	Gdip_DrawLine( G , Pen , 250 , 5 , 250 , 35 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "Hotkeys & Settings" , "s14 Center vCenter Bold c" Brush " x-1 y-6" , "Segoe UI" , 300 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "Hotkeys & Settings" , "s14 Center vCenter Bold c" Brush " x1 y-6" , "Segoe UI" , 300 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "Hotkeys & Settings" , "s14 Center vCenter Bold c" Brush " x1 y-4" , "Segoe UI" , 300 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "Hotkeys & Settings" , "s14 Center vCenter Bold c" Brush " x-1 y-4" , "Segoe UI" , 300 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF000000" )
+	Gdip_TextToGraphics( G , "Hotkeys & Settings" , "s14 Center vCenter Bold c" Brush " x0 y-5" , "Segoe UI" , 300 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF404040" )
+	Gdip_FillRectangle( G , Brush , 12 , 45 , 274 , 150 )
+	Gdip_DeleteBrush( Brush )
+	Pen := Gdip_CreatePen( "0xFF555555" , 1 )
+	Gdip_DrawRectangle( G , Pen , 12 , 45 , 274 , 150 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF000000" , 1 )
+	Gdip_DrawLine( G , Pen , 286 , 45 , 286 , 195 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF000000" , 1 )
+	Gdip_DrawLine( G , Pen , 12 , 195 , 286 , 195 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "Info" , "s14 Center vCenter Bold Underline c" Brush " x-1 y33" , "Segoe UI" , 300 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "Info" , "s14 Center vCenter Bold Underline c" Brush " x1 y33" , "Segoe UI" , 300 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "Info" , "s14 Center vCenter Bold Underline c" Brush " x1 y35" , "Segoe UI" , 300 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFF5C900" )
+	Gdip_TextToGraphics( G , "Info" , "s14 Center vCenter Bold Underline c" Brush " x-1 y35" , "Segoe UI" , 300 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF000000" )
+	Gdip_TextToGraphics( G , "Info" , "s14 Center vCenter Bold Underline c" Brush " x0 y34" , "Segoe UI" , 300 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF000000" )
+	Gdip_TextToGraphics( G , "Written By:            Hellbent aka CivReborn" , "s12 Center vCenter Bold c" Brush " x0 y60" , "Segoe UI" , 300 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFffffff" )
+	Gdip_TextToGraphics( G , "Written By:            Hellbent aka CivReborn" , "s12 Center vCenter Bold c" Brush " x1 y61" , "Segoe UI" , 300 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF000000" )
+	Gdip_TextToGraphics( G , "Date:                        May 28th 2019" , "s12 Center vCenter Bold c" Brush " x-22 y80" , "Segoe UI" , 300 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFffffff" )
+	Gdip_TextToGraphics( G , "Date:                        May 28th 2019" , "s12 Center vCenter Bold c" Brush " x-21 y81" , "Segoe UI" , 300 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF000000" )
+	Gdip_TextToGraphics( G , "All Rights Reserved" , "s10 Center vCenter Bold c" Brush " x0 y160" , "Segoe UI" , 300 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFffffff" )
+	Gdip_TextToGraphics( G , "All Rights Reserved" , "s10 Center vCenter Bold c" Brush " x1 y161" , "Segoe UI" , 300 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF404040" )
+	Gdip_FillRectangle( G , Brush , 12 , 200 , 274 , 40 )
+	Gdip_DeleteBrush( Brush )
+	Pen := Gdip_CreatePen( "0xFF555555" , 1 )
+	Gdip_DrawRectangle( G , Pen , 12 , 200 , 274 , 40 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF000000" , 1 )
+	Gdip_DrawLine( G , Pen , 12 , 240 , 286 , 240 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF000000" , 1 )
+	Gdip_DrawLine( G , Pen , 286 , 200 , 286 , 240 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_BrushCreateSolid( "0xFF404040" )
+	Gdip_FillRectangle( G , Brush , 12 , 245 , 274 , 40 )
+	Gdip_DeleteBrush( Brush )
+	Pen := Gdip_CreatePen( "0xFF555555" , 1 )
+	Gdip_DrawRectangle( G , Pen , 12 , 245 , 274 , 40 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF000000" , 1 )
+	Gdip_DrawLine( G , Pen , 12 , 285 , 286 , 285 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF000000" , 1 )
+	Gdip_DrawLine( G , Pen , 286 , 245 , 286 , 285 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_BrushCreateSolid( "0xFF404040" )
+	Gdip_FillRectangle( G , Brush , 12 , 290 , 274 , 80 )
+	Gdip_DeleteBrush( Brush )
+	Pen := Gdip_CreatePen( "0xFF555555" , 1 )
+	Gdip_DrawRectangle( G , Pen , 12 , 290 , 274 , 80 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF000000" , 1 )
+	Gdip_DrawLine( G , Pen , 12 , 370 , 286 , 370 )
+	Gdip_DeletePen( Pen )
+	Pen := Gdip_CreatePen( "0xFF000000" , 1 )
+	Gdip_DrawLine( G , Pen , 286 , 290 , 286 , 370 )
+	Gdip_DeletePen( Pen )
+	Brush := Gdip_BrushCreateSolid( "0xFF555555" )
+	Gdip_FillRectangle( G , Brush , 170 , 254 , 100 , 22 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF000000" )
+	Gdip_TextToGraphics( G , "SetMouseDelay (Mouse Press Time)" , "s10 Center vCenter Bold c" Brush " x25 y240" , "Segoe UI" , 110 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFffffff" )
+	Gdip_TextToGraphics( G , "SetMouseDelay (Mouse Press Time)" , "s10 Center vCenter Bold c" Brush " x26 y241" , "Segoe UI" , 110 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF000000" )
+	Gdip_TextToGraphics( G , "Start:" , "s10 Center vCenter Bold c" Brush " x-15 y285" , "Segoe UI" , 110 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFffffff" )
+	Gdip_TextToGraphics( G , "Start:" , "s10 Center vCenter Bold c" Brush " x-14 y286" , "Segoe UI" , 110 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFF000000" )
+	Gdip_TextToGraphics( G , "Stop:" , "s10 Center vCenter Bold c" Brush " x-15 y320" , "Segoe UI" , 110 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Brush := Gdip_BrushCreateSolid( "0xFFffffff" )
+	Gdip_TextToGraphics( G , "Stop:" , "s10 Center vCenter Bold c" Brush " x-14 y321" , "Segoe UI" , 110 , 50 )
+	Gdip_DeleteBrush( Brush )
+	Gdip_DeleteGraphics( G )
+	return pBitmap
+}
+BitBlt(ddc, dx, dy, dw, dh, sdc, sx, sy, Raster=""){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	return DllCall("gdi32\BitBlt", Ptr, dDC, "int", dx, "int", dy, "int", dw, "int", dh, Ptr, sDC, "int", sx, "int", sy, "uint", Raster ? Raster : 0x00CC0020)
+}
+Gdip_DrawImage(pGraphics, pBitmap, dx="", dy="", dw="", dh="", sx="", sy="", sw="", sh="", Matrix=1){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	if (Matrix&1 = "")
+		ImageAttr := Gdip_SetImageAttributesColorMatrix(Matrix)
+	else if (Matrix != 1)
+		ImageAttr := Gdip_SetImageAttributesColorMatrix("1|0|0|0|0|0|1|0|0|0|0|0|1|0|0|0|0|0|" Matrix "|0|0|0|0|0|1")
+	if(sx = "" && sy = "" && sw = "" && sh = ""){
+		if(dx = "" && dy = "" && dw = "" && dh = ""){
+			sx := dx := 0, sy := dy := 0
+			sw := dw := Gdip_GetImageWidth(pBitmap)
+			sh := dh := Gdip_GetImageHeight(pBitmap)
+		}else	{
+			sx := sy := 0,sw := Gdip_GetImageWidth(pBitmap),sh := Gdip_GetImageHeight(pBitmap)
+		}
+	}
+	E := DllCall("gdiplus\GdipDrawImageRectRect", Ptr, pGraphics, Ptr, pBitmap, "float", dx, "float", dy, "float", dw, "float", dh, "float", sx, "float", sy, "float", sw, "float", sh, "int", 2, Ptr, ImageAttr, Ptr, 0, Ptr, 0)
+	if ImageAttr
+		Gdip_DisposeImageAttributes(ImageAttr)
+	return E
+}
+Gdip_SetImageAttributesColorMatrix(Matrix){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	VarSetCapacity(ColourMatrix, 100, 0)
+	Matrix := RegExReplace(RegExReplace(Matrix, "^[^\d-\.]+([\d\.])", "$1", "", 1), "[^\d-\.]+", "|")
+	StringSplit, Matrix, Matrix, |
+	Loop, 25
+	{
+		Matrix := (Matrix%A_Index% != "") ? Matrix%A_Index% : Mod(A_Index-1, 6) ? 0 : 1
+		NumPut(Matrix, ColourMatrix, (A_Index-1)*4, "float")
+	}
+	DllCall("gdiplus\GdipCreateImageAttributes", A_PtrSize ? "UPtr*" : "uint*", ImageAttr)
+	DllCall("gdiplus\GdipSetImageAttributesColorMatrix", Ptr, ImageAttr, "int", 1, "int", 1, Ptr, &ColourMatrix, Ptr, 0, "int", 0)
+	return ImageAttr
+}
+Gdip_GetImageWidth(pBitmap){
+   DllCall("gdiplus\GdipGetImageWidth", A_PtrSize ? "UPtr" : "UInt", pBitmap, "uint*", Width)
+   return Width
+}
+Gdip_GetImageHeight(pBitmap){
+   DllCall("gdiplus\GdipGetImageHeight", A_PtrSize ? "UPtr" : "UInt", pBitmap, "uint*", Height)
+   return Height
+}
+Gdip_DeletePen(pPen){
+   return DllCall("gdiplus\GdipDeletePen", A_PtrSize ? "UPtr" : "UInt", pPen)
+}
+Gdip_DeleteBrush(pBrush){
+   return DllCall("gdiplus\GdipDeleteBrush", A_PtrSize ? "UPtr" : "UInt", pBrush)
+}
+Gdip_DisposeImage(pBitmap){
+   return DllCall("gdiplus\GdipDisposeImage", A_PtrSize ? "UPtr" : "UInt", pBitmap)
+}
+Gdip_DeleteGraphics(pGraphics){
+   return DllCall("gdiplus\GdipDeleteGraphics", A_PtrSize ? "UPtr" : "UInt", pGraphics)
+}
+Gdip_DisposeImageAttributes(ImageAttr){
+	return DllCall("gdiplus\GdipDisposeImageAttributes", A_PtrSize ? "UPtr" : "UInt", ImageAttr)
+}
+Gdip_DeleteFont(hFont){
+   return DllCall("gdiplus\GdipDeleteFont", A_PtrSize ? "UPtr" : "UInt", hFont)
+}
+Gdip_DeleteStringFormat(hFormat){
+   return DllCall("gdiplus\GdipDeleteStringFormat", A_PtrSize ? "UPtr" : "UInt", hFormat)
+}
+Gdip_DeleteFontFamily(hFamily){
+   return DllCall("gdiplus\GdipDeleteFontFamily", A_PtrSize ? "UPtr" : "UInt", hFamily)
+}
+CreateCompatibleDC(hdc=0){
+   return DllCall("CreateCompatibleDC", A_PtrSize ? "UPtr" : "UInt", hdc)
+}
+SelectObject(hdc, hgdiobj){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	return DllCall("SelectObject", Ptr, hdc, Ptr, hgdiobj)
+}
+DeleteObject(hObject){
+   return DllCall("DeleteObject", A_PtrSize ? "UPtr" : "UInt", hObject)
+}
+GetDC(hwnd=0){
+	return DllCall("GetDC", A_PtrSize ? "UPtr" : "UInt", hwnd)
+}
+GetDCEx(hwnd, flags=0, hrgnClip=0){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+    return DllCall("GetDCEx", Ptr, hwnd, Ptr, hrgnClip, "int", flags)
+}
+ReleaseDC(hdc, hwnd=0){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	return DllCall("ReleaseDC", Ptr, hwnd, Ptr, hdc)
+}
+DeleteDC(hdc){
+   return DllCall("DeleteDC", A_PtrSize ? "UPtr" : "UInt", hdc)
+}
+Gdip_SetClipRegion(pGraphics, Region, CombineMode=0){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	return DllCall("gdiplus\GdipSetClipRegion", Ptr, pGraphics, Ptr, Region, "int", CombineMode)
+}
+CreateDIBSection(w, h, hdc="", bpp=32, ByRef ppvBits=0){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	hdc2 := hdc ? hdc : GetDC()
+	VarSetCapacity(bi, 40, 0)
+	NumPut(w, bi, 4, "uint"), NumPut(h, bi, 8, "uint"), NumPut(40, bi, 0, "uint"), NumPut(1, bi, 12, "ushort"), NumPut(0, bi, 16, "uInt"), NumPut(bpp, bi, 14, "ushort")
+	hbm := DllCall("CreateDIBSection", Ptr, hdc2, Ptr, &bi, "uint", 0, A_PtrSize ? "UPtr*" : "uint*", ppvBits, Ptr, 0, "uint", 0, Ptr)
+	if !hdc
+		ReleaseDC(hdc2)
+	return hbm
+}
+Gdip_GraphicsFromImage(pBitmap){
+	DllCall("gdiplus\GdipGetImageGraphicsContext", A_PtrSize ? "UPtr" : "UInt", pBitmap, A_PtrSize ? "UPtr*" : "UInt*", pGraphics)
+	return pGraphics
+}
+Gdip_GraphicsFromHDC(hdc){
+    DllCall("gdiplus\GdipCreateFromHDC", A_PtrSize ? "UPtr" : "UInt", hdc, A_PtrSize ? "UPtr*" : "UInt*", pGraphics)
+    return pGraphics
+}
+Gdip_GetDC(pGraphics){
+	DllCall("gdiplus\GdipGetDC", A_PtrSize ? "UPtr" : "UInt", pGraphics, A_PtrSize ? "UPtr*" : "UInt*", hdc)
+	return hdc
+}
+Gdip_Startup(){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	if !DllCall("GetModuleHandle", "str", "gdiplus", Ptr)
+		DllCall("LoadLibrary", "str", "gdiplus")
+	VarSetCapacity(si, A_PtrSize = 8 ? 24 : 16, 0), si := Chr(1)
+	DllCall("gdiplus\GdiplusStartup", A_PtrSize ? "UPtr*" : "uint*", pToken, Ptr, &si, Ptr, 0)
+	return pToken
+}
+Gdip_TextToGraphics(pGraphics, Text, Options, Font="Arial", Width="", Height="", Measure=0){
+	IWidth := Width, IHeight:= Height
+	RegExMatch(Options, "i)X([\-\d\.]+)(p*)", xpos)
+	RegExMatch(Options, "i)Y([\-\d\.]+)(p*)", ypos)
+	RegExMatch(Options, "i)W([\-\d\.]+)(p*)", Width)
+	RegExMatch(Options, "i)H([\-\d\.]+)(p*)", Height)
+	RegExMatch(Options, "i)C(?!(entre|enter))([a-f\d]+)", Colour)
+	RegExMatch(Options, "i)Top|Up|Bottom|Down|vCentre|vCenter", vPos)
+	RegExMatch(Options, "i)NoWrap", NoWrap)
+	RegExMatch(Options, "i)R(\d)", Rendering)
+	RegExMatch(Options, "i)S(\d+)(p*)", Size)
+	if !Gdip_DeleteBrush(Gdip_CloneBrush(Colour2))
+		PassBrush := 1, pBrush := Colour2
+	if !(IWidth && IHeight) && (xpos2 || ypos2 || Width2 || Height2 || Size2)
+		return -1
+	Style := 0, Styles := "Regular|Bold|Italic|BoldItalic|Underline|Strikeout"
+	Loop, Parse, Styles, |
+	{
+		if RegExMatch(Options, "\b" A_loopField)
+		Style |= (A_LoopField != "StrikeOut") ? (A_Index-1) : 8
+	}
+	Align := 0, Alignments := "Near|Left|Centre|Center|Far|Right"
+	Loop, Parse, Alignments, |
+	{
+		if RegExMatch(Options, "\b" A_loopField)
+			Align |= A_Index//2.1   
+	}
+	xpos := (xpos1 != "") ? xpos2 ? IWidth*(xpos1/100) : xpos1 : 0
+	ypos := (ypos1 != "") ? ypos2 ? IHeight*(ypos1/100) : ypos1 : 0
+	Width := Width1 ? Width2 ? IWidth*(Width1/100) : Width1 : IWidth
+	Height := Height1 ? Height2 ? IHeight*(Height1/100) : Height1 : IHeight
+	if !PassBrush
+		Colour := "0x" (Colour2 ? Colour2 : "ff000000")
+	Rendering := ((Rendering1 >= 0) && (Rendering1 <= 5)) ? Rendering1 : 4
+	Size := (Size1 > 0) ? Size2 ? IHeight*(Size1/100) : Size1 : 12
+	hFamily := Gdip_FontFamilyCreate(Font)
+	hFont := Gdip_FontCreate(hFamily, Size, Style)
+	FormatStyle := NoWrap ? 0x4000 | 0x1000 : 0x4000
+	hFormat := Gdip_StringFormatCreate(FormatStyle)
+	pBrush := PassBrush ? pBrush : Gdip_BrushCreateSolid(Colour)
+	if !(hFamily && hFont && hFormat && pBrush && pGraphics)
+		return !pGraphics ? -2 : !hFamily ? -3 : !hFont ? -4 : !hFormat ? -5 : !pBrush ? -6 : 0
+	CreateRectF(RC, xpos, ypos, Width, Height)
+	Gdip_SetStringFormatAlign(hFormat, Align)
+	Gdip_SetTextRenderingHint(pGraphics, Rendering)
+	ReturnRC := Gdip_MeasureString(pGraphics, Text, hFont, hFormat, RC)
+	if vPos
+	{
+		StringSplit, ReturnRC, ReturnRC, |
+		if (vPos = "vCentre") || (vPos = "vCenter")
+			ypos += (Height-ReturnRC4)//2
+		else if (vPos = "Top") || (vPos = "Up")
+			ypos := 0
+		else if (vPos = "Bottom") || (vPos = "Down")
+			ypos := Height-ReturnRC4
+		CreateRectF(RC, xpos, ypos, Width, ReturnRC4)
+		ReturnRC := Gdip_MeasureString(pGraphics, Text, hFont, hFormat, RC)
+	}
+	if !Measure
+		E := Gdip_DrawString(pGraphics, Text, hFont, hFormat, pBrush, RC)
+	if !PassBrush
+		Gdip_DeleteBrush(pBrush)
+	Gdip_DeleteStringFormat(hFormat)
+	Gdip_DeleteFont(hFont)
+	Gdip_DeleteFontFamily(hFamily)
+	return E ? E : ReturnRC
+}
+Gdip_DrawString(pGraphics, sString, hFont, hFormat, pBrush, ByRef RectF){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	if (!A_IsUnicode)
+	{
+		nSize := DllCall("MultiByteToWideChar", "uint", 0, "uint", 0, Ptr, &sString, "int", -1, Ptr, 0, "int", 0)
+		VarSetCapacity(wString, nSize*2)
+		DllCall("MultiByteToWideChar", "uint", 0, "uint", 0, Ptr, &sString, "int", -1, Ptr, &wString, "int", nSize)
+	}
+	return DllCall("gdiplus\GdipDrawString", Ptr, pGraphics, Ptr, A_IsUnicode ? &sString : &wString, "int", -1, Ptr, hFont, Ptr, &RectF, Ptr, hFormat, Ptr, pBrush)
+}
+Gdip_CreateLineBrush(x1, y1, x2, y2, ARGB1, ARGB2, WrapMode=1){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	CreatePointF(PointF1, x1, y1), CreatePointF(PointF2, x2, y2)
+	DllCall("gdiplus\GdipCreateLineBrush", Ptr, &PointF1, Ptr, &PointF2, "Uint", ARGB1, "Uint", ARGB2, "int", WrapMode, A_PtrSize ? "UPtr*" : "UInt*", LGpBrush)
+	return LGpBrush
+}
+Gdip_CreateLineBrushFromRect(x, y, w, h, ARGB1, ARGB2, LinearGradientMode=1, WrapMode=1){
+	CreateRectF(RectF, x, y, w, h)
+	DllCall("gdiplus\GdipCreateLineBrushFromRect", A_PtrSize ? "UPtr" : "UInt", &RectF, "int", ARGB1, "int", ARGB2, "int", LinearGradientMode, "int", WrapMode, A_PtrSize ? "UPtr*" : "UInt*", LGpBrush)
+	return LGpBrush
+}
+Gdip_CloneBrush(pBrush){
+	DllCall("gdiplus\GdipCloneBrush", A_PtrSize ? "UPtr" : "UInt", pBrush, A_PtrSize ? "UPtr*" : "UInt*", pBrushClone)
+	return pBrushClone
+}
+Gdip_FontFamilyCreate(Font){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	if (!A_IsUnicode)
+	{
+		nSize := DllCall("MultiByteToWideChar", "uint", 0, "uint", 0, Ptr, &Font, "int", -1, "uint", 0, "int", 0)
+		VarSetCapacity(wFont, nSize*2)
+		DllCall("MultiByteToWideChar", "uint", 0, "uint", 0, Ptr, &Font, "int", -1, Ptr, &wFont, "int", nSize)
+	}
+	DllCall("gdiplus\GdipCreateFontFamilyFromName", Ptr, A_IsUnicode ? &Font : &wFont, "uint", 0, A_PtrSize ? "UPtr*" : "UInt*", hFamily)
+	return hFamily
+}
+Gdip_SetStringFormatAlign(hFormat, Align){
+   return DllCall("gdiplus\GdipSetStringFormatAlign", A_PtrSize ? "UPtr" : "UInt", hFormat, "int", Align)
+}
+Gdip_StringFormatCreate(Format=0, Lang=0){
+   DllCall("gdiplus\GdipCreateStringFormat", "int", Format, "int", Lang, A_PtrSize ? "UPtr*" : "UInt*", hFormat)
+   return hFormat
+}
+Gdip_FontCreate(hFamily, Size, Style=0){
+   DllCall("gdiplus\GdipCreateFont", A_PtrSize ? "UPtr" : "UInt", hFamily, "float", Size, "int", Style, "int", 0, A_PtrSize ? "UPtr*" : "UInt*", hFont)
+   return hFont
+}
+Gdip_CreatePen(ARGB, w){
+   DllCall("gdiplus\GdipCreatePen1", "UInt", ARGB, "float", w, "int", 2, A_PtrSize ? "UPtr*" : "UInt*", pPen)
+   return pPen
+}
+Gdip_CreatePenFromBrush(pBrush, w){
+	DllCall("gdiplus\GdipCreatePen2", A_PtrSize ? "UPtr" : "UInt", pBrush, "float", w, "int", 2, A_PtrSize ? "UPtr*" : "UInt*", pPen)
+	return pPen
+}
+Gdip_BrushCreateSolid(ARGB=0xff000000){
+	DllCall("gdiplus\GdipCreateSolidFill", "UInt", ARGB, A_PtrSize ? "UPtr*" : "UInt*", pBrush)
+	return pBrush
+}
+Gdip_BrushCreateHatch(ARGBfront, ARGBback, HatchStyle=0){
+	DllCall("gdiplus\GdipCreateHatchBrush", "int", HatchStyle, "UInt", ARGBfront, "UInt", ARGBback, A_PtrSize ? "UPtr*" : "UInt*", pBrush)
+	return pBrush
+}
+CreateRectF(ByRef RectF, x, y, w, h){
+   VarSetCapacity(RectF, 16)
+   NumPut(x, RectF, 0, "float"), NumPut(y, RectF, 4, "float"), NumPut(w, RectF, 8, "float"), NumPut(h, RectF, 12, "float")
+}
+Gdip_SetTextRenderingHint(pGraphics, RenderingHint){
+	return DllCall("gdiplus\GdipSetTextRenderingHint", A_PtrSize ? "UPtr" : "UInt", pGraphics, "int", RenderingHint)
+}
+Gdip_MeasureString(pGraphics, sString, hFont, hFormat, ByRef RectF){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	VarSetCapacity(RC, 16)
+	if !A_IsUnicode
+	{
+		nSize := DllCall("MultiByteToWideChar", "uint", 0, "uint", 0, Ptr, &sString, "int", -1, "uint", 0, "int", 0)
+		VarSetCapacity(wString, nSize*2)
+		DllCall("MultiByteToWideChar", "uint", 0, "uint", 0, Ptr, &sString, "int", -1, Ptr, &wString, "int", nSize)
+	}
+	DllCall("gdiplus\GdipMeasureString", Ptr, pGraphics, Ptr, A_IsUnicode ? &sString : &wString, "int", -1, Ptr, hFont, Ptr, &RectF, Ptr, hFormat, Ptr, &RC, "uint*", Chars, "uint*", Lines)
+	return &RC ? NumGet(RC, 0, "float") "|" NumGet(RC, 4, "float") "|" NumGet(RC, 8, "float") "|" NumGet(RC, 12, "float") "|" Chars "|" Lines : 0
+}
+CreateRect(ByRef Rect, x, y, w, h){
+	VarSetCapacity(Rect, 16)
+	NumPut(x, Rect, 0, "uint"), NumPut(y, Rect, 4, "uint"), NumPut(w, Rect, 8, "uint"), NumPut(h, Rect, 12, "uint")
+}
+CreateSizeF(ByRef SizeF, w, h){
+   VarSetCapacity(SizeF, 8)
+   NumPut(w, SizeF, 0, "float"), NumPut(h, SizeF, 4, "float")
+}
+CreatePointF(ByRef PointF, x, y){
+   VarSetCapacity(PointF, 8)
+   NumPut(x, PointF, 0, "float"), NumPut(y, PointF, 4, "float")
+}
+Gdip_DrawArc(pGraphics, pPen, x, y, w, h, StartAngle, SweepAngle){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	return DllCall("gdiplus\GdipDrawArc", Ptr, pGraphics, Ptr, pPen, "float", x, "float", y, "float", w, "float", h, "float", StartAngle, "float", SweepAngle)
+}
+Gdip_DrawPie(pGraphics, pPen, x, y, w, h, StartAngle, SweepAngle){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	return DllCall("gdiplus\GdipDrawPie", Ptr, pGraphics, Ptr, pPen, "float", x, "float", y, "float", w, "float", h, "float", StartAngle, "float", SweepAngle)
+}
+Gdip_DrawLine(pGraphics, pPen, x1, y1, x2, y2){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	return DllCall("gdiplus\GdipDrawLine", Ptr, pGraphics, Ptr, pPen, "float", x1, "float", y1, "float", x2, "float", y2)
+}
+Gdip_DrawLines(pGraphics, pPen, Points){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	StringSplit, Points, Points, |
+	VarSetCapacity(PointF, 8*Points0)
+	Loop, %Points0%
+	{
+		StringSplit, Coord, Points%A_Index%, `,
+		NumPut(Coord1, PointF, 8*(A_Index-1), "float"), NumPut(Coord2, PointF, (8*(A_Index-1))+4, "float")
+	}
+	return DllCall("gdiplus\GdipDrawLines", Ptr, pGraphics, Ptr, pPen, Ptr, &PointF, "int", Points0)
+}
+Gdip_FillRectangle(pGraphics, pBrush, x, y, w, h){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	return DllCall("gdiplus\GdipFillRectangle", Ptr, pGraphics, Ptr, pBrush, "float", x, "float", y, "float", w, "float", h)
+}
+Gdip_FillRoundedRectangle(pGraphics, pBrush, x, y, w, h, r){
+	Region := Gdip_GetClipRegion(pGraphics)
+	Gdip_SetClipRect(pGraphics, x-r, y-r, 2*r, 2*r, 4)
+	Gdip_SetClipRect(pGraphics, x+w-r, y-r, 2*r, 2*r, 4)
+	Gdip_SetClipRect(pGraphics, x-r, y+h-r, 2*r, 2*r, 4)
+	Gdip_SetClipRect(pGraphics, x+w-r, y+h-r, 2*r, 2*r, 4)
+	E := Gdip_FillRectangle(pGraphics, pBrush, x, y, w, h)
+	Gdip_SetClipRegion(pGraphics, Region, 0)
+	Gdip_SetClipRect(pGraphics, x-(2*r), y+r, w+(4*r), h-(2*r), 4)
+	Gdip_SetClipRect(pGraphics, x+r, y-(2*r), w-(2*r), h+(4*r), 4)
+	Gdip_FillEllipse(pGraphics, pBrush, x, y, 2*r, 2*r)
+	Gdip_FillEllipse(pGraphics, pBrush, x+w-(2*r), y, 2*r, 2*r)
+	Gdip_FillEllipse(pGraphics, pBrush, x, y+h-(2*r), 2*r, 2*r)
+	Gdip_FillEllipse(pGraphics, pBrush, x+w-(2*r), y+h-(2*r), 2*r, 2*r)
+	Gdip_SetClipRegion(pGraphics, Region, 0)
+	Gdip_DeleteRegion(Region)
+	return E
+}
+Gdip_GetClipRegion(pGraphics){
+	Region := Gdip_CreateRegion()
+	DllCall("gdiplus\GdipGetClip", A_PtrSize ? "UPtr" : "UInt", pGraphics, "UInt*", Region)
+	return Region
+}
+Gdip_SetClipRect(pGraphics, x, y, w, h, CombineMode=0){
+   return DllCall("gdiplus\GdipSetClipRect",  A_PtrSize ? "UPtr" : "UInt", pGraphics, "float", x, "float", y, "float", w, "float", h, "int", CombineMode)
+}
+Gdip_SetClipPath(pGraphics, Path, CombineMode=0){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	return DllCall("gdiplus\GdipSetClipPath", Ptr, pGraphics, Ptr, Path, "int", CombineMode)
+}
+Gdip_ResetClip(pGraphics){
+   return DllCall("gdiplus\GdipResetClip", A_PtrSize ? "UPtr" : "UInt", pGraphics)
+}
+Gdip_FillEllipse(pGraphics, pBrush, x, y, w, h){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	return DllCall("gdiplus\GdipFillEllipse", Ptr, pGraphics, Ptr, pBrush, "float", x, "float", y, "float", w, "float", h)
+}
+Gdip_FillRegion(pGraphics, pBrush, Region){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	return DllCall("gdiplus\GdipFillRegion", Ptr, pGraphics, Ptr, pBrush, Ptr, Region)
+}
+Gdip_FillPath(pGraphics, pBrush, Path){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	return DllCall("gdiplus\GdipFillPath", Ptr, pGraphics, Ptr, pBrush, Ptr, Path)
+}
+Gdip_CreateRegion(){
+	DllCall("gdiplus\GdipCreateRegion", "UInt*", Region)
+	return Region
+}
+Gdip_DeleteRegion(Region){
+	return DllCall("gdiplus\GdipDeleteRegion", A_PtrSize ? "UPtr" : "UInt", Region)
+}
+Gdip_CreateBitmap(Width, Height, Format=0x26200A){
+    DllCall("gdiplus\GdipCreateBitmapFromScan0", "int", Width, "int", Height, "int", 0, "int", Format, A_PtrSize ? "UPtr" : "UInt", 0, A_PtrSize ? "UPtr*" : "uint*", pBitmap)
+    Return pBitmap
+}
+Gdip_SetSmoothingMode(pGraphics, SmoothingMode){
+   return DllCall("gdiplus\GdipSetSmoothingMode", A_PtrSize ? "UPtr" : "UInt", pGraphics, "int", SmoothingMode)
+}
+Gdip_DrawRectangle(pGraphics, pPen, x, y, w, h){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	return DllCall("gdiplus\GdipDrawRectangle", Ptr, pGraphics, Ptr, pPen, "float", x, "float", y, "float", w, "float", h)
+}
+Gdip_DrawRoundedRectangle(pGraphics, pPen, x, y, w, h, r){
+	Gdip_SetClipRect(pGraphics, x-r, y-r, 2*r, 2*r, 4)
+	Gdip_SetClipRect(pGraphics, x+w-r, y-r, 2*r, 2*r, 4)
+	Gdip_SetClipRect(pGraphics, x-r, y+h-r, 2*r, 2*r, 4)
+	Gdip_SetClipRect(pGraphics, x+w-r, y+h-r, 2*r, 2*r, 4)
+	E := Gdip_DrawRectangle(pGraphics, pPen, x, y, w, h)
+	Gdip_ResetClip(pGraphics)
+	Gdip_SetClipRect(pGraphics, x-(2*r), y+r, w+(4*r), h-(2*r), 4)
+	Gdip_SetClipRect(pGraphics, x+r, y-(2*r), w-(2*r), h+(4*r), 4)
+	Gdip_DrawEllipse(pGraphics, pPen, x, y, 2*r, 2*r)
+	Gdip_DrawEllipse(pGraphics, pPen, x+w-(2*r), y, 2*r, 2*r)
+	Gdip_DrawEllipse(pGraphics, pPen, x, y+h-(2*r), 2*r, 2*r)
+	Gdip_DrawEllipse(pGraphics, pPen, x+w-(2*r), y+h-(2*r), 2*r, 2*r)
+	Gdip_ResetClip(pGraphics)
+	return E
+}
+Gdip_DrawEllipse(pGraphics, pPen, x, y, w, h){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	return DllCall("gdiplus\GdipDrawEllipse", Ptr, pGraphics, Ptr, pPen, "float", x, "float", y, "float", w, "float", h)
+}
+Gdip_CreateHBITMAPFromBitmap(pBitmap, Background=0xffffffff){
+	DllCall("gdiplus\GdipCreateHBITMAPFromBitmap", A_PtrSize ? "UPtr" : "UInt", pBitmap, A_PtrSize ? "UPtr*" : "uint*", hbm, "int", Background)
+	return hbm
+}
+SetImage(hwnd, hBitmap){
+	SendMessage, 0x172, 0x0, hBitmap,, ahk_id %hwnd%
+	E := ErrorLevel
+	DeleteObject(E)
+	return E
+}
+Gdip_FillPolygon(pGraphics, pBrush, Points, FillMode=0){
+	Ptr := A_PtrSize ? "UPtr" : "UInt"
+	StringSplit, Points, Points, |
+	VarSetCapacity(PointF, 8*Points0)
+	Loop, %Points0%
+	{
+		StringSplit, Coord, Points%A_Index%, `,
+		NumPut(Coord1, PointF, 8*(A_Index-1), "float"), NumPut(Coord2, PointF, (8*(A_Index-1))+4, "float")
+	}
+	return DllCall("gdiplus\GdipFillPolygon", Ptr, pGraphics, Ptr, pBrush, Ptr, &PointF, "int", Points0, "int", FillMode)
+}
