@@ -39,11 +39,8 @@ return
 GuiClose:
 ;~ GuiContextMenu:
 ;~ *Esc::
-	ExitApp	
-Tag(){
-	try
-		run,https://www.youtube.com/channel/UCge0TKjySLXd8xeLib8F0rA
-}
+	ExitApp
+	
 Move_Window(){
 	PostMessage,0xA1,2
 }
