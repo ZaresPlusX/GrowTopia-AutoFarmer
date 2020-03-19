@@ -9,7 +9,7 @@ OnMessage(0x200,"CheckStop")
 global ClickTypeGroup:=[],HB_Button:=[],PlaySounds:={State:1},Cx,Cy,Click_Position,ClickDelay:=30,ClickAmount:=1,ClickCounter:=0,Stop:=0,SetA,MouseDelay:=10,Startkey:="Numpad1",StopKey:="Numpad2"
 Hotkey,%StartKey%,RUNACNOW
 Hotkey,%StopKey%,STCLer
-Main := New Custom_Window( x:= "" , y:= "" , w:= 450 , h:= 300 , Name:= "1" , Options:= "+AlwaysOnTop  -DPIScale -Caption" , Title:= "SS Clicker" , Background_Bitmap:= SS_CLICKER_BG() )
+Main := New Custom_Window( x:= "" , y:= "" , w:= 450 , h:= 300 , Name:= "1" , Options:= "+AlwaysOnTop  -DPIScale -Caption" , Title:= "Auto Clicker" , Background_Bitmap:= SS_CLICKER_BG() )
 Gui,1:Color,373737,333333
 Gui,1:Add,Text,x100 y5 w250 h30 BackgroundTrans gMove_Window
 Gui,1:Add,Text,x5 y5 w25 h25 BackgroundTrans gTag
