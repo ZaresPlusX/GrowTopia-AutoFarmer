@@ -39,8 +39,11 @@ return
 GuiClose:
 ;~ GuiContextMenu:
 ;~ *Esc::
-	ExitApp
-	
+	ExitApp	
+Tag(){
+	try
+		run,https://github.com/ZaresPlusX/GrowTopia-AutoFarmer
+}
 Move_Window(){
 	PostMessage,0xA1,2
 }
@@ -308,7 +311,7 @@ GMC(){
 	if( ! HB_Button[ A_GuiControl ].Draw_Pressed() )
 		return
 	try
-		Run,https://www.youtube.com/watch?v=D3llZxTlgvU&list=PLPI5C2_hIGGw7poIqgox3rDnyocwTxcY_
+		Run,https://github.com/ZaresPlusX/GrowTopia-AutoFarmer
 }
 SettingWindow(){
 	global
@@ -1152,16 +1155,16 @@ SS_Clicker_SBG(){
 	Gdip_TextToGraphics( G , "Info" , "s14 Center vCenter Bold Underline c" Brush " x0 y34" , "Segoe UI" , 300 , 50 )
 	Gdip_DeleteBrush( Brush )
 	Brush := Gdip_BrushCreateSolid( "0xFF000000" )
-	Gdip_TextToGraphics( G , "Written By:            ZaresPlusX" , "s12 Center vCenter Bold c" Brush " x0 y60" , "Segoe UI" , 300 , 50 )
+	Gdip_TextToGraphics( G , "Written By:            ZaresPlusX with IceClown" , "s12 Center vCenter Bold c" Brush " x0 y60" , "Segoe UI" , 300 , 50 )
 	Gdip_DeleteBrush( Brush )
 	Brush := Gdip_BrushCreateSolid( "0xFFffffff" )
-	Gdip_TextToGraphics( G , "Written By:            ZaresPlusX" , "s12 Center vCenter Bold c" Brush " x1 y61" , "Segoe UI" , 300 , 50 )
+	Gdip_TextToGraphics( G , "Written By:            ZaresPlusX with IceClown" , "s12 Center vCenter Bold c" Brush " x1 y61" , "Segoe UI" , 300 , 50 )
 	Gdip_DeleteBrush( Brush )
 	Brush := Gdip_BrushCreateSolid( "0xFF000000" )
-	Gdip_TextToGraphics( G , "Date:                        March 18th 2020" , "s12 Center vCenter Bold c" Brush " x-22 y80" , "Segoe UI" , 300 , 50 )
+	Gdip_TextToGraphics( G , "Date:                        March 19th 2020" , "s12 Center vCenter Bold c" Brush " x-22 y80" , "Segoe UI" , 300 , 50 )
 	Gdip_DeleteBrush( Brush )
 	Brush := Gdip_BrushCreateSolid( "0xFFffffff" )
-	Gdip_TextToGraphics( G , "Date:                        March 18th 2020" , "s12 Center vCenter Bold c" Brush " x-21 y81" , "Segoe UI" , 300 , 50 )
+	Gdip_TextToGraphics( G , "Date:                        March 19th 2020" , "s12 Center vCenter Bold c" Brush " x-21 y81" , "Segoe UI" , 300 , 50 )
 	Gdip_DeleteBrush( Brush )
 	Brush := Gdip_BrushCreateSolid( "0xFF000000" )
 	Gdip_TextToGraphics( G , "All Rights Reserved" , "s10 Center vCenter Bold c" Brush " x0 y160" , "Segoe UI" , 300 , 50 )
