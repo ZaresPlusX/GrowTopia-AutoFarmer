@@ -1,0 +1,62 @@
+[United_Kingdom_VPN]
+MEDIA=rastapi
+Port=VPN2-0
+Device=WAN Miniport (IKEv2)
+DEVICE=vpn
+PhoneNumber=vpn453327113.opengw.net
+
+[United_States_VPN]
+MEDIA=rastapi
+Port=VPN2-0
+Device=WAN Miniport (IKEv2)
+DEVICE=vpn
+PhoneNumber=vpn984160303.opengw.net
+
+[United_States_2_VPN]
+MEDIA=rastapi
+Port=VPN2-0
+Device=WAN Miniport (IKEv2)
+DEVICE=vpn
+PhoneNumber=exia-001-anti-ddos.opengw.net
+
+[United_Kingdom_2_VPN]
+MEDIA=rastapi
+Port=VPN2-0
+Device=WAN Miniport (IKEv2)
+DEVICE=vpn
+PhoneNumber=vpn429494865.opengw.net
+
+[Colombia_VPN]
+MEDIA=rastapi
+Port=VPN2-0
+Device=WAN Miniport (IKEv2)
+DEVICE=vpn
+PhoneNumber=vpn597817389.opengw.net
+
+[Suriname_VPN]
+MEDIA=rastapi
+Port=VPN2-0
+Device=WAN Miniport (IKEv2)
+DEVICE=vpn
+PhoneNumber=atv-ddns.opengw.net
+
+[Singapore_VPN]
+MEDIA=rastapi
+Port=VPN2-0
+Device=WAN Miniport (IKEv2)
+DEVICE=vpn
+PhoneNumber=vpn901642793.opengw.net
+
+[Japan_VPN]
+MEDIA=rastapi
+Port=VPN2-0
+Device=WAN Miniport (IKEv2)
+DEVICE=vpn
+PhoneNumber=rspnet-jp1.opengw.net
+
+[Malaysia_VPN]
+MEDIA=rastapi
+Port=VPN2-0
+Device=WAN Miniport (IKEv2)
+DEVICE=vpn
+PhoneNumber=vpn230750292.opengw.net
